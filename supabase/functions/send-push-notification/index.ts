@@ -1,33 +1,48 @@
 // ============================================================
-// Supabase Edge Function: send-push-notification
-// Trigger: Dipanggil saat event terjadi (pesanan baru, status change, dll)
+// KEDAI RAFFA v1.5.0 — Edge Function: send-push-notification
 // ============================================================
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0'
+
+// ── ENV VARIABLES (no SUPABASE_ prefix) ──
+const SB_URL = Deno.env.get('SB_URL') || ''
+
+let serviceRoleKey = ''
+const secretKeysRaw = Deno.env.get('SECRET_KEYS')
+if (secretKeysRaw) {
+  try {
+    const secretKeys = JSON.parse(secretKeysRaw)
+    serviceRoleKey = secretKeys['default'] || secretKeys['service_role'] || ''
+  } catch {
+    serviceRoleKey = Deno.env.get('SERVICE_ROLE_KEY') || ''
+  }
+} else {
+  serviceRoleKey = Deno.env.get('SERVICE_ROLE_KEY') || ''
+}
 
 const VAPID_PRIVATE_KEY = Deno.env.get('VAPID_PRIVATE_KEY')
 const VAPID_PUBLIC_KEY = Deno.env.get('VAPID_PUBLIC_KEY')
 
-serve(async (req) => {
+// ── INIT SUPABASE CLIENT ──
+const supabase = createClient(SB_URL, serviceRoleKey)
+
+// ── HANDLER ──
+Deno.serve(async (req) => {
   try {
     const { title, body, tag, role, data } = await req.json()
-
-    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2')
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') || '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
-    )
 
     const { data: subscriptions, error } = await supabase
       .from('push_subscriptions')
       .select('*')
       .eq('role', role)
 
-    if (error) throw error
+    if (error) {
+      throw new Error('Gagal ambil subscription: ' + error.message)
+    }
 
     const results = []
 
-    for (const sub of subscriptions) {
+    for (const sub of subscriptions || []) {
       try {
         const pushPayload = {
           title: title || 'KEDAI RAFFA',
@@ -40,26 +55,29 @@ serve(async (req) => {
           actions: [{ action: 'open', title: 'Buka App' }]
         }
 
-        const { sendNotification } = await import('https://esm.sh/web-push@3.6.6')
+        const pushRes = await fetch(sub.endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'TTL': '60',
+            'Urgency': 'high'
+          },
+          body: JSON.stringify(pushPayload)
+        })
 
-        await sendNotification(
-          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-          JSON.stringify(pushPayload),
-          {
-            vapidDetails: {
-              subject: 'mailto:nacjistiga@gmail.com',
-              publicKey: VAPID_PUBLIC_KEY,
-              privateKey: VAPID_PRIVATE_KEY
-            }
-          }
-        )
+        if (pushRes.ok) {
+          results.push({ endpoint: sub.endpoint, status: 'sent' })
+        } else {
+          const errText = await pushRes.text()
+          throw new Error('Push failed: ' + pushRes.status + ' ' + errText)
+        }
 
-        results.push({ endpoint: sub.endpoint, status: 'sent' })
       } catch (pushError) {
-        if (pushError.statusCode === 410 || pushError.statusCode === 404) {
+        const msg = pushError.message || ''
+        if (msg.includes('410') || msg.includes('404') || msg.includes('Expired')) {
           await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint)
         }
-        results.push({ endpoint: sub.endpoint, status: 'failed', error: pushError.message })
+        results.push({ endpoint: sub.endpoint, status: 'failed', error: msg })
       }
     }
 
