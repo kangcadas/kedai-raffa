@@ -1,0 +1,52 @@
+{
+  "packageId": "com.kedairaffa.pos",
+  "host": "kedai-raffa-pos.pages.dev",
+  "name": "KEDAI RAFFA POS",
+  "launcherName": "KEDAI RAFFA",
+  "display": "standalone",
+  "themeColor": "#1A1A2E",
+  "navigationColor": "#1A1A2E",
+  "navigationColorDark": "#1A1A2E",
+  "navigationDividerColor": "#1A1A2E",
+  "navigationDividerColorDark": "#1A1A2E",
+  "backgroundColor": "#1A1A2E",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "https://kedai-raffa-pos.pages.dev/icons/icon-512x512.png",
+  "maskableIconUrl": "https://kedai-raffa-pos.pages.dev/icons/icon-512x512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "android.keystore",
+    "alias": "kedairaffa"
+  },
+  "appVersionName": "1.5.0",
+  "appVersionCode": 150,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://kedai-raffa-pos.pages.dev/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {
+    "playBilling": {
+      "enabled": false
+    },
+    "locationDelegation": {
+      "enabled": true
+    },
+    "arCore": {
+      "enabled": false
+    }
+  },
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://kedai-raffa-pos.pages.dev/",
+  "minSdkVersion": 21,
+  "orientation": "portrait",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "appBundle": false
+}
