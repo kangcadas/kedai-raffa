@@ -14,6 +14,7 @@
   <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/js/config.js"></script>
   <script src="/js/supabase-client.js"></script>
   <script src="/js/bluetooth-printer.js"></script>
   <script src="/js/push-notification.js"></script>
@@ -117,15 +118,6 @@
   </div>
 
   <script>
-    // ============================================================
-    // KONFIGURASI SUPABASE + VAPID (PRODUCTION)
-    // ============================================================
-    const CONFIG = {
-      supabaseUrl: 'https://obcijbiyxqrvrhlzqjqb.supabase.co',
-      supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iY2lqYml5eHFydnJobHpxanFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1MDczNjYsImV4cCI6MjEwMTA4MzM2Nn0.eowHPYIMTWqBjTxEivZAX7BtzrWkS-efw983g9aSryU',
-      vapidPublicKey: 'BCrjorU7wTJOi1pp9EyRy4clWgNoBW6wrxUM025MdHIhRG50eFlZ25pggfSWGD54mz1r0Wx47etU3oUHayJKI3s'
-    };
-
     let app = null;
     let printer = null;
 

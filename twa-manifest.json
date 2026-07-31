@@ -1,6 +1,6 @@
 {
   "packageId": "com.kedairaffa.pos",
-  "host": "kedai-raffa-pos.pages.dev",
+  "host": "YOUR-CLOUDFLARE-PAGES-URL.pages.dev",
   "name": "KEDAI RAFFA POS",
   "launcherName": "KEDAI RAFFA",
   "display": "standalone",
@@ -12,8 +12,8 @@
   "backgroundColor": "#1A1A2E",
   "enableNotifications": true,
   "startUrl": "/",
-  "iconUrl": "https://kedai-raffa-pos.pages.dev/icons/icon-512x512.png",
-  "maskableIconUrl": "https://kedai-raffa-pos.pages.dev/icons/icon-512x512.png",
+  "iconUrl": "https://YOUR-CLOUDFLARE-PAGES-URL.pages.dev/icons/icon-512x512.png",
+  "maskableIconUrl": "https://YOUR-CLOUDFLARE-PAGES-URL.pages.dev/icons/icon-512x512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
     "path": "android.keystore",
@@ -23,26 +23,18 @@
   "appVersionCode": 150,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
-  "webManifestUrl": "https://kedai-raffa-pos.pages.dev/manifest.json",
+  "webManifestUrl": "https://YOUR-CLOUDFLARE-PAGES-URL.pages.dev/manifest.json",
   "fallbackType": "customtabs",
   "features": {
-    "playBilling": {
-      "enabled": false
-    },
-    "locationDelegation": {
-      "enabled": true
-    },
-    "arCore": {
-      "enabled": false
-    }
+    "playBilling": { "enabled": false },
+    "locationDelegation": { "enabled": true },
+    "arCore": { "enabled": false }
   },
-  "alphaDependencies": {
-    "enabled": false
-  },
+  "alphaDependencies": { "enabled": false },
   "enableSiteSettingsShortcut": true,
   "isChromeOSOnly": false,
   "isMetaQuest": false,
-  "fullScopeUrl": "https://kedai-raffa-pos.pages.dev/",
+  "fullScopeUrl": "https://YOUR-CLOUDFLARE-PAGES-URL.pages.dev/",
   "minSdkVersion": 21,
   "orientation": "portrait",
   "fingerprints": [],

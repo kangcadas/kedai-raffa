@@ -12,6 +12,7 @@
 | `index.html` | Halaman utama PWA |
 | `manifest.json` | PWA manifest (icon, theme, display) |
 | `sw.js` | Service Worker (cache, push, background sync) |
+| `js/config.js` | **Config terpusat** (Supabase URL, VAPID, dll) |
 | `js/supabase-client.js` | Koneksi Supabase + Realtime |
 | `js/bluetooth-printer.js` | **Printer Thermal Bluetooth ESC/POS** |
 | `js/push-notification.js` | Web Push Notification |
@@ -19,64 +20,75 @@
 | `twa-manifest.json` | Config Bubblewrap (build APK) |
 | `.github/workflows/deploy.yml` | Auto-deploy ke Cloudflare Pages |
 | `.github/workflows/build-apk.yml` | Auto-build APK via Bubblewrap |
-| `supabase/functions/send-push-notification/` | Edge Function kirim push |
-| `supabase/functions/auto-cancel-pending/` | Edge Function auto-cancel BR-022 |
+| `CRON_SETUP.md` | Panduan setup cron auto-cancel |
 
 ---
 
 ## 🚀 STEP-BY-STEP SETUP (100% Browser, Tanpa Terminal)
 
-### LANGKAH 1: Siapkan Supabase
+### ✅ LANGKAH 0: Deploy SQL ke Supabase (WAJIB PERTAMA)
 
-1. Buka [supabase.com](https://supabase.com) → Login/Register (gratis)
-2. Klik "New Project" → Isi nama `kedai-raffa`
-3. Tunggu project jadi (1-2 menit)
-4. Buka **SQL Editor** (kiri sidebar)
-5. Copy-paste isi file `99_kedai_raffa_FINAL_v1.5.0.sql` → Klik **Run**
+1. Buka [supabase.com](https://supabase.com) → Login
+2. Buka project `kedai-raffa`
+3. Buka **SQL Editor** (kiri sidebar)
+4. Copy-paste isi file `99_kedai_raffa_FINAL_v1.5.0.sql`
+5. Klik **Run**
 6. Database siap! 🎉
 
-### LANGKAH 2: Dapatkan API Keys
+### ✅ LANGKAH 1: Deploy Edge Functions
 
-1. Di Supabase Dashboard → **Project Settings** (icon roda gigi)
-2. Tab **API** → Copy:
-   - `URL` → paste ke `index.html` bagian `supabaseUrl`
-   - `anon public` key → paste ke `index.html` bagian `supabaseKey`
-3. Tab **Edge Functions** → Enable (jika belum)
+#### Function 1: `send-push-notification`
+1. Supabase Dashboard → **Edge Functions** → **New Function**
+2. Name: `send-push-notification`
+3. Hapus semua kode default → Paste kode dari `supabase/functions/send-push-notification/index.ts`
+4. Tab **Secrets** → Add secrets:
+   - `SB_URL` → `https://obcijbiyxqrvrhlzqjqb.supabase.co`
+   - `SERVICE_ROLE_KEY` → *(dari Project Settings → API → service_role secret)*
+   - `VAPID_PRIVATE_KEY` → `63-AnObYp85Njg64F4yEKoSV2f2Ou5iCaKZbZhUmJSw`
+   - `VAPID_PUBLIC_KEY` → `BCrjorU7wTJOi1pp9EyRy4clWgNoBW6wrxUM025MdHIhRG50eFlZ25pggfSWGD54mz1r0Wx47etU3oUHayJKI3s`
+5. Klik **Deploy function**
 
-### LANGKAH 3: Generate VAPID Keys (Untuk Push Notification)
+#### Function 2: `auto-cancel-pending`
+1. **New Function** → Name: `auto-cancel-pending`
+2. Paste kode dari `supabase/functions/auto-cancel-pending/index.ts`
+3. Tab **Secrets** → Add:
+   - `SB_URL` → `https://obcijbiyxqrvrhlzqjqb.supabase.co`
+   - `SERVICE_ROLE_KEY` → *(sama seperti di atas)*
+4. **Deploy**
 
-1. Buka [vapidkeys.com](https://vapidkeys.com) di browser HP/laptop
-2. Klik **Generate**
-3. Copy **Public Key** → paste ke `index.html` bagian `vapidPublicKey`
-4. Copy **Private Key** → simpan untuk Langkah 5 (Edge Function)
+### ✅ LANGKAH 2: Setup Cron Job Auto-Cancel
 
-### LANGKAH 4: Buat GitHub Repo
+Ikuti panduan lengkap di file **`CRON_SETUP.md`**
+
+Ringkasnya:
+1. Buka [cron-job.org](https://cron-job.org) → Sign Up (gratis)
+2. Create Cronjob:
+   - URL: `https://obcijbiyxqrvrhlzqjqb.supabase.co/functions/v1/auto-cancel-pending`
+   - Schedule: Every 5 minutes
+   - Header: `Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iY2lqYml5eHFydnJobHpxanFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1MDczNjYsImV4cCI6MjEwMTA4MzM2Nn0.eowHPYIMTWqBjTxEivZAX7BtzrWkS-efw983g9aSryU`
+3. Klik **CREATE** → **RUN NOW** untuk test
+
+### ✅ LANGKAH 3: Buat GitHub Repo
 
 1. Buka [github.com/new](https://github.com/new)
-2. Isi nama repo: `kedai-raffa-pos`
-3. Pilih **Public** → Klik **Create repository**
+2. Nama repo: `kedai-raffa-pos`
+3. Pilih **Public** → **Create repository**
 4. Klik **"creating a new file"**
-5. Buat file satu per satu (copy-paste dari file di atas):
+5. Buat file satu per satu (copy-paste dari ZIP ini):
    - `index.html`
    - `manifest.json`
    - `sw.js`
-   - Buat folder `js/` lalu file-file di dalamnya
-   - Buat folder `.github/workflows/` lalu file `.yml`
-   - Buat folder `supabase/functions/...`
+   - `js/config.js`
+   - `js/supabase-client.js`
+   - `js/bluetooth-printer.js`
+   - `js/push-notification.js`
+   - `js/app.js`
+   - `.github/workflows/deploy.yml`
+   - `.github/workflows/build-apk.yml`
+   - `twa-manifest.json`
 6. Klik **Commit changes** setiap file
 
-### LANGKAH 5: Deploy Edge Functions (Supabase)
-
-1. Di Supabase Dashboard → **Edge Functions** → **New Function**
-2. Nama: `send-push-notification`
-3. Copy-paste kode dari `supabase/functions/send-push-notification/index.ts`
-4. Tambah **Secrets**:
-   - `VAPID_PRIVATE_KEY` = private key dari Langkah 3
-   - `VAPID_PUBLIC_KEY` = public key dari Langkah 3
-5. Deploy
-6. Ulangi untuk function `auto-cancel-pending`
-
-### LANGKAH 6: Setup Cloudflare Pages
+### ✅ LANGKAH 4: Setup Cloudflare Pages
 
 1. Buka [dash.cloudflare.com](https://dash.cloudflare.com) → Login/Register
 2. Klik **Pages** → **Create a project** → **Connect to Git**
@@ -86,15 +98,23 @@
 6. Output directory: *(kosongkan)*
 7. Klik **Save and Deploy**
 8. Tunggu 1 menit → PWA live! 🚀
+9. **Copy URL Cloudflare Pages** (contoh: `https://kedai-raffa-pos.pages.dev`)
 
-### LANGKAH 7: Update URL di Config
+### ✅ LANGKAH 5: Update Config
 
-1. Copy URL Cloudflare Pages (contoh: `https://kedai-raffa-pos.pages.dev`)
-2. Edit `index.html` → ganti `YOUR_PROJECT_ID` dengan ID Supabase Anda
-3. Edit `twa-manifest.json` → ganti semua URL dengan URL Cloudflare Pages Anda
-4. Commit changes → Deploy otomatis jalan
+1. Edit `js/config.js` di GitHub → ganti tidak perlu (sudah benar)
+2. Edit `twa-manifest.json` → ganti `YOUR-CLOUDFLARE-PAGES-URL` dengan URL asli Anda
+3. Commit changes → Deploy otomatis jalan
 
-### LANGKAH 8: Build APK (Otomatis via GitHub Actions)
+### ✅ LANGKAH 6: Setup GitHub Secrets (untuk Deploy & APK)
+
+1. Di GitHub repo → tab **Settings** → **Secrets and variables** → **Actions**
+2. Klik **New repository secret**:
+   - `CLOUDFLARE_API_TOKEN` → *(dari Cloudflare → My Profile → API Tokens → Create Token → Custom token → Zone:Read, Page:Edit)*
+   - `CLOUDFLARE_ACCOUNT_ID` → *(dari Cloudflare dashboard sidebar)*
+3. Klik **Add secret**
+
+### ✅ LANGKAH 7: Build APK (Otomatis)
 
 1. Di GitHub repo → tab **Actions**
 2. Klik workflow **"Build APK (TWA) via Bubblewrap"**
@@ -154,6 +174,7 @@
 | APK build gagal | Cek `twa-manifest.json` URL sudah benar |
 | Deploy Cloudflare gagal | Cek API token di GitHub Secrets |
 | Realtime tidak jalan | Cek Supabase Realtime enabled di Project Settings |
+| Cron tidak jalan | Cek cron-job.org status "Active", cek Authorization header |
 
 ---
 
@@ -167,6 +188,7 @@
 | TWA Builder | Bubblewrap (Google) | $0 |
 | Push | Web Push API | $0 |
 | Bluetooth | Web Bluetooth API | $0 |
+| Cron | cron-job.org | $0 |
 | **TOTAL** | | **$0** |
 
 ---
@@ -175,9 +197,9 @@
 
 1. **Ganti hash bcrypt** di seed data sebelum production
 2. **Regenerate VAPID keys** untuk production (jangan pakai yang dari web tool)
-3. **Auto-cancel pending** butuh Supabase Cron job atau schedule Edge Function
+3. **Icons** belum ada — buat folder `icons/` dan upload icon PNG 512x512, 192x192, 72x72
 4. **Signing APK** saat ini unsigned. Untuk Play Store, butuh keystore (bisa via GitHub Actions juga)
-5. **Icons** belum ada — buat folder `icons/` dan upload icon PNG 512x512, 192x192, 72x72
+5. **Config terpusat** ada di `js/config.js` — ganti di sini saja kalau ada perubahan URL/key
 
 ---
 
