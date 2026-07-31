@@ -1,20 +1,31 @@
 // ============================================================
-// Supabase Edge Function: auto-cancel-pending
-// Cron: Setiap 5 menit
-// Business Rule BR-022: Auto cancel pesanan pending > 10 menit
+// KEDAI RAFFA v1.5.0 — Edge Function: auto-cancel-pending
 // ============================================================
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0'
 
-serve(async (req) => {
+// ── ENV VARIABLES (no SUPABASE_ prefix) ──
+const SB_URL = Deno.env.get('SB_URL') || ''
+
+let serviceRoleKey = ''
+const secretKeysRaw = Deno.env.get('SECRET_KEYS')
+if (secretKeysRaw) {
   try {
-    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2')
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') || '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
-    )
+    const secretKeys = JSON.parse(secretKeysRaw)
+    serviceRoleKey = secretKeys['default'] || secretKeys['service_role'] || ''
+  } catch {
+    serviceRoleKey = Deno.env.get('SERVICE_ROLE_KEY') || ''
+  }
+} else {
+  serviceRoleKey = Deno.env.get('SERVICE_ROLE_KEY') || ''
+}
 
-    // Cari transaksi pending yang sudah > 10 menit
+// ── INIT SUPABASE CLIENT ──
+const supabase = createClient(SB_URL, serviceRoleKey)
+
+// ── HANDLER ──
+Deno.serve(async (_req) => {
+  try {
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString()
 
     const { data: pendingOrders, error } = await supabase
@@ -23,7 +34,9 @@ serve(async (req) => {
       .eq('status', 'pending')
       .lt('created_at', tenMinutesAgo)
 
-    if (error) throw error
+    if (error) {
+      throw new Error('Gagal ambil pending orders: ' + error.message)
+    }
 
     const cancelled = []
 
