@@ -12,7 +12,6 @@ serve(async (req) => {
   try {
     const { title, body, tag, role, data } = await req.json()
 
-    // Ambil semua subscription untuk role tertentu
     const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2')
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') || '',
@@ -38,25 +37,17 @@ serve(async (req) => {
           badge: '/icons/icon-72x72.png',
           requireInteraction: true,
           data: data || {},
-          actions: [
-            { action: 'open', title: 'Buka App' }
-          ]
+          actions: [{ action: 'open', title: 'Buka App' }]
         }
 
-        // Kirim push via web-push protocol
-        const endpoint = sub.endpoint
-        const p256dh = sub.p256dh
-        const auth = sub.auth
-
-        // Gunakan web-push library via esm.sh
         const { sendNotification } = await import('https://esm.sh/web-push@3.6.6')
 
         await sendNotification(
-          { endpoint, keys: { p256dh, auth } },
+          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
           JSON.stringify(pushPayload),
           {
             vapidDetails: {
-              subject: 'mailto:owner@kedairaffa.id',
+              subject: 'mailto:nacjistiga@gmail.com',
               publicKey: VAPID_PUBLIC_KEY,
               privateKey: VAPID_PRIVATE_KEY
             }
@@ -65,7 +56,6 @@ serve(async (req) => {
 
         results.push({ endpoint: sub.endpoint, status: 'sent' })
       } catch (pushError) {
-        // Jika gagal (subscription expired), hapus dari DB
         if (pushError.statusCode === 410 || pushError.statusCode === 404) {
           await supabase.from('push_subscriptions').delete().eq('endpoint', sub.endpoint)
         }
