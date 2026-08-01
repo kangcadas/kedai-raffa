@@ -1,0 +1,25 @@
+name: Build APK (TWA) via Bubblewrap
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Bubblewrap
+        run: npm install -g @bubblewrap/cli
+      - name: Build TWA
+        run: |
+          bubblewrap build --skipPwaValidation
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME }}
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: kedai-raffa-apk
+          path: app-release-signed.apk

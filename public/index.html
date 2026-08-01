@@ -234,16 +234,15 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
 <!-- SPLASH SCREEN -->
 <!-- ═══════════════════════════════════════════════════════════ -->
 <div id="splash" class="splash">
-  <h1>KEDAI RAFFA</h1>
-  <p>Jus & Cemilan Segar</p>
-  <div class="loader"></div>
+  <img src="splash.png" alt="KEDAI RAFFA" style="width:220px;height:auto;margin-bottom:16px;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.15);">
+  <div class="loader" style="margin-top:16px;"></div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════ -->
 <!-- LOGIN SCREEN -->
 <!-- ═══════════════════════════════════════════════════════════ -->
 <div id="login-screen" class="login-screen">
-  <div class="login-brand">KEDAI RAFFA</div>
+  <img src="logo-brand.png" alt="KEDAI RAFFA" style="height:60px;width:auto;object-fit:contain;margin-bottom:8px;">
   <div class="login-sub">Masukkan kode akses Anda</div>
   <div class="login-tabs">
     <button class="login-tab active" id="tab-kasir" onclick="setLoginRole('kasir')">Kasir</button>
@@ -264,7 +263,7 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
 <!-- ═══════════════════════════════════════════════════════════ -->
 <div id="app-shell" class="app-shell">
   <header class="app-header">
-    <span class="brand">Kedai Raffa</span>
+    <img src="logo-brand.png" alt="KEDAI RAFFA" style="height:36px;width:auto;object-fit:contain;">
     <div class="header-actions">
       <button class="header-action" id="btn-notif" onclick="showNotifModal()" title="Notifikasi">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -318,7 +317,10 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
       </div>
       <div class="card">
         <div class="card-header"><span class="card-title">Notifikasi Push</span><span id="push-badge" class="badge badge-idle">NONAKTIF</span></div>
-        <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;" id="push-desc">Aktifkan notifikasi push untuk menerima alert pesanan baru.</p>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <img src="maskot.png" alt="Maskot" style="width:48px;height:48px;object-fit:contain;border-radius:50%;">
+          <p style="font-size:13px;color:var(--text-muted);margin:0;flex:1;" id="push-desc">Aktifkan notifikasi push untuk menerima alert pesanan baru.</p>
+        </div>
         <button class="btn btn-outline btn-sm" id="btn-push" onclick="enablePush()">Aktifkan Notifikasi</button>
       </div>
     </div>
@@ -573,7 +575,7 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
 <!-- ═══════════════════════════════════════════════════════════ -->
 <div id="qr-page" class="qr-page hidden">
   <div class="qr-header">
-    <h1>KEDAI RAFFA</h1>
+    <img src="logo-brand.png" alt="KEDAI RAFFA" style="height:48px;width:auto;object-fit:contain;margin-bottom:8px;">
     <p id="qr-gerai-status">Memuat status gerai...</p>
     <div id="qr-status-badge" class="qr-status-badge badge-success" style="display:none;">🟢 BUKA</div>
   </div>
