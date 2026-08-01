@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#370e03">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>KEDAI RAFFA</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192x192.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════════ */
+/* DESIGN SYSTEM — Premium F&B Elite */
+/* ═══════════════════════════════════════════════════════════ */
+:root {
+  --header: #370e03;
+  --content: #341a13;
+  --text: #fffde0;
+  --text-muted: rgba(255,253,224,0.55);
+  --accent: #c9a96e;
+  --accent-soft: rgba(201,169,110,0.15);
+  --danger: #c97c7c;
+  --danger-soft: rgba(201,124,124,0.12);
+  --success: #7cc9a0;
+  --success-soft: rgba(124,201,160,0.12);
+  --border: rgba(255,253,224,0.08);
+  --card: rgba(255,253,224,0.04);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.35);
+  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; font-family:var(--font); background:var(--content); color:var(--text); overflow-x:hidden; }
+
+/* Splash */
+.splash { position:fixed; inset:0; background:linear-gradient(180deg,#fff7ca 0%,#c9a96e 100%); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; transition:opacity .6s; }
+.splash.hidden { opacity:0; pointer-events:none; }
+.splash h1 { font-size:42px; font-weight:800; color:var(--header); letter-spacing:4px; }
+.splash p { font-size:14px; color:#5c3d05; margin-top:8px; letter-spacing:2px; }
+.splash .loader { width:40px; height:40px; border:3px solid rgba(55,14,3,0.2); border-top-color:var(--header); border-radius:50%; animation:spin 1s linear infinite; margin-top:24px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* Offline Banner */
+.offline-banner { position:fixed; top:0; left:0; right:0; background:#b8860b; color:#370e03; text-align:center; font-size:12px; font-weight:600; padding:6px; z-index:9998; transform:translateY(-100%); transition:transform .3s; }
+.offline-banner.show { transform:translateY(0); }
+
+/* Login */
+.login-screen { position:fixed; inset:0; background:linear-gradient(180deg,var(--header) 0%,var(--content) 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; z-index:100; }
+.login-screen.hidden { display:none; }
+.login-brand { font-size:32px; font-weight:800; letter-spacing:3px; margin-bottom:8px; color:var(--accent); }
+.login-sub { font-size:13px; color:var(--text-muted); margin-bottom:32px; }
+.login-tabs { display:flex; gap:8px; margin-bottom:20px; }
+.login-tab { padding:10px 24px; border-radius:var(--radius-sm); border:1px solid var(--border); background:transparent; color:var(--text-muted); font-size:14px; font-weight:600; cursor:pointer; transition:all .2s; }
+.login-tab.active { background:var(--accent); color:var(--header); border-color:var(--accent); }
+.login-box { width:100%; max-width:340px; }
+.input-group { margin-bottom:16px; }
+.input-group label { display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px; font-weight:500; text-transform:uppercase; letter-spacing:0.5px; }
+.input { width:100%; padding:14px 16px; border-radius:var(--radius-sm); border:1px solid var(--border); background:rgba(255,253,224,0.06); color:var(--text); font-size:16px; outline:none; transition:border .2s; }
+.input:focus { border-color:var(--accent); }
+.input::placeholder { color:var(--text-muted); }
+.btn { width:100%; padding:14px; border-radius:var(--radius-sm); border:none; font-size:15px; font-weight:700; cursor:pointer; transition:all .2s; display:inline-flex; align-items:center; justify-content:center; gap:8px; }
+.btn-primary { background:var(--accent); color:var(--header); }
+.btn-primary:active { transform:scale(0.98); }
+/* PWA Install Button */
+.pwa-install-wrap { width:100%; max-width:340px; margin-top:16px; }
+.btn-install { background:transparent; color:var(--accent); border:1.5px solid var(--accent); display:flex; align-items:center; justify-content:center; gap:10px; padding:13px 16px; border-radius:var(--radius-sm); font-size:14px; font-weight:600; width:100%; cursor:pointer; transition:all .25s; }
+.btn-install:hover { background:var(--accent-soft); }
+.btn-install:active { transform:scale(0.98); }
+.btn-install svg { flex-shrink:0; }
+.pwa-installed-note { text-align:center; font-size:12px; color:var(--text-muted); margin-top:12px; }
+.btn-outline { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+.btn-danger { background:var(--danger-soft); color:var(--danger); border:1px solid rgba(201,124,124,0.3); }
+.btn-sm { padding:8px 12px; font-size:13px; width:auto; }
+.btn-lg { padding:16px; font-size:16px; }
+.btn-ghost { background:transparent; color:var(--text-muted); border:none; padding:8px; }
+.login-error { color:var(--danger); font-size:13px; margin-top:10px; text-align:center; opacity:0; transition:opacity .3s; }
+.login-error.show { opacity:1; }
+
+/* App Shell */
+.app-shell { display:none; flex-direction:column; height:100vh; }
+.app-shell.active { display:flex; }
+.app-header { position:sticky; top:0; background:var(--header); padding:12px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); z-index:100; }
+.brand { font-size:18px; font-weight:800; letter-spacing:2px; color:var(--accent); }
+.header-actions { display:flex; gap:8px; }
+.header-action { width:36px; height:36px; border-radius:var(--radius-sm); background:rgba(255,253,224,0.06); border:1px solid var(--border); color:var(--text); display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative; }
+.badge-dot { position:absolute; top:6px; right:6px; width:8px; height:8px; background:var(--danger); border-radius:50%; display:none; }
+.badge-dot.show { display:block; }
+
+.content { flex:1; overflow-y:auto; padding:16px; padding-bottom:90px; -webkit-overflow-scrolling:touch; }
+
+/* Bottom Nav */
+.bottom-nav { position:fixed; bottom:0; left:0; right:0; background:var(--header); border-top:1px solid var(--border); display:flex; justify-content:space-around; padding:6px 0 calc(6px + env(safe-area-inset-bottom)); z-index:100; }
+.nav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 0; background:none; border:none; color:var(--text-muted); font-size:10px; font-weight:500; cursor:pointer; transition:color .2s; }
+.nav-item svg { width:22px; height:22px; stroke-width:2; }
+.nav-item.active { color:var(--accent); }
+
+/* Pages */
+.page { display:none; animation:fadeIn .25s ease; }
+.page.active { display:block; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+/* Cards */
+.card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:12px; }
+.card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.card-title { font-size:13px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; }
+.card-value { font-size:28px; font-weight:800; color:var(--text); margin-top:4px; }
+.section-title { font-size:13px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:1px; margin:20px 0 12px; }
+
+/* Stats */
+.stats-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:12px; }
+.stat-box { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:14px; }
+.stat-box .label { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
+.stat-box .value { font-size:20px; font-weight:800; }
+.accent { color:var(--accent); }
+.danger { color:var(--danger); }
+.success { color:var(--success); }
+
+/* Badges */
+.badge { display:inline-block; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+.badge-success { background:var(--success-soft); color:var(--success); }
+.badge-idle { background:rgba(255,253,224,0.08); color:var(--text-muted); }
+.badge-danger { background:var(--danger-soft); color:var(--danger); }
+
+/* Menu Grid */
+.menu-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:12px; }
+.menu-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px; cursor:pointer; transition:transform .15s; }
+.menu-card:active { transform:scale(0.97); }
+.menu-name { font-size:14px; font-weight:700; margin-bottom:4px; }
+.menu-price { font-size:13px; color:var(--accent); font-weight:600; margin-bottom:10px; }
+.menu-qty { display:flex; align-items:center; gap:8px; }
+.qty-btn { width:28px; height:28px; border-radius:6px; border:1px solid var(--border); background:rgba(255,253,224,0.06); color:var(--text); font-size:16px; font-weight:700; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.qty-value { font-size:14px; font-weight:700; min-width:20px; text-align:center; }
+
+/* List Items */
+.list-item { display:flex; align-items:center; gap:12px; padding:12px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:8px; cursor:pointer; }
+.icon-wrap { width:40px; height:40px; border-radius:10px; background:rgba(255,253,224,0.06); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.icon-wrap svg { width:20px; height:20px; stroke:var(--accent); }
+.list-item .info { flex:1; }
+.list-item .name { font-size:14px; font-weight:600; }
+.list-item .meta { font-size:12px; color:var(--text-muted); margin-top:2px; }
+
+/* Modal */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:200; display:none; align-items:flex-end; justify-content:center; }
+.modal-overlay.show { display:flex; }
+.modal-content { background:var(--content); border-top:1px solid var(--border); border-radius:var(--radius) var(--radius) 0 0; width:100%; max-width:480px; max-height:85vh; overflow-y:auto; padding:20px; animation:slideUp .3s ease; }
+@keyframes slideUp { from { transform:translateY(100%); } to { transform:none; } }
+.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.modal-title { font-size:16px; font-weight:700; color:var(--accent); }
+.modal-close { width:32px; height:32px; border-radius:50%; background:rgba(255,253,224,0.06); border:1px solid var(--border); color:var(--text); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+
+/* Cart Panel */
+.cart-panel { position:fixed; bottom:72px; left:12px; right:12px; background:var(--header); border:1px solid var(--border); border-radius:var(--radius); padding:16px; z-index:90; display:none; box-shadow:var(--shadow); max-height:50vh; overflow-y:auto; }
+.cart-panel.show { display:block; }
+.cart-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.cart-item { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); }
+.cart-item:last-child { border-bottom:none; }
+.cart-total { font-size:18px; font-weight:800; color:var(--accent); }
+
+/* Toast */
+.toast-container { position:fixed; top:16px; right:16px; left:16px; z-index:300; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
+.toast { padding:12px 16px; border-radius:var(--radius-sm); font-size:13px; font-weight:600; color:#fff; box-shadow:var(--shadow); transform:translateY(-20px); opacity:0; transition:all .3s; pointer-events:auto; }
+.toast.show { transform:none; opacity:1; }
+.toast-success { background:#2d6a4f; }
+.toast-error { background:#9b2335; }
+.toast-info { background:#1a4a6e; }
+.toast-warning { background:#8b6914; }
+
+/* Timeline */
+.timeline { position:relative; padding-left:24px; }
+.timeline::before { content:''; position:absolute; left:7px; top:4px; bottom:4px; width:2px; background:var(--border); }
+.timeline-item { position:relative; margin-bottom:16px; }
+.timeline-dot { position:absolute; left:-20px; top:2px; width:14px; height:14px; border-radius:50%; background:var(--border); border:2px solid var(--content); }
+.timeline-dot.active { background:var(--accent); }
+.timeline-title { font-size:13px; font-weight:700; }
+.timeline-time { font-size:11px; color:var(--text-muted); margin-top:2px; }
+
+/* Stok Alert Banner */
+.stok-alert { position:sticky; top:56px; background:var(--danger-soft); border:1px solid rgba(201,124,124,0.2); border-radius:var(--radius-sm); padding:10px 14px; margin-bottom:12px; font-size:12px; color:var(--danger); font-weight:600; display:none; z-index:50; }
+.stok-alert.show { display:block; }
+
+/* QR Page */
+.qr-page { display:none; min-height:100vh; background:var(--content); }
+.qr-page.hidden { display:none; }
+.qr-page:not(.hidden) { display:block; }
+.qr-header { background:var(--header); padding:20px 16px; text-align:center; border-bottom:1px solid var(--border); }
+.qr-header h1 { font-size:24px; font-weight:800; letter-spacing:3px; color:var(--accent); }
+.qr-header p { font-size:13px; color:var(--text-muted); margin-top:4px; }
+.qr-status-badge { display:inline-block; margin-top:8px; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700; }
+
+/* Filter chips */
+.filter-chips { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:12px; }
+.filter-chips::-webkit-scrollbar { display:none; }
+
+/* Empty state */
+.empty-state { text-align:center; padding:40px 20px; color:var(--text-muted); }
+.empty-state svg { width:48px; height:48px; stroke:var(--text-muted); margin-bottom:12px; opacity:0.5; }
+
+/* Loading skeleton */
+.skeleton { background:linear-gradient(90deg,rgba(255,253,224,0.04) 25%,rgba(255,253,224,0.08) 50%,rgba(255,253,224,0.04) 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:var(--radius-sm); }
+@keyframes shimmer { 0% { background-position:200% 0; } 100% { background-position:-200% 0; } }
+
+/* Print preview */
+.print-preview { background:#fff; color:#000; padding:20px; font-family:monospace; font-size:12px; line-height:1.5; border-radius:var(--radius-sm); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:rgba(255,253,224,0.15); border-radius:4px; }
+
+/* Hide number input arrows */
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+
+/* Utility */
+.text-center { text-align:center; }
+.mt-1 { margin-top:8px; }
+.mt-2 { margin-top:16px; }
+.mb-1 { margin-bottom:8px; }
+.flex { display:flex; }
+.flex-between { display:flex; justify-content:space-between; align-items:center; }
+.gap-2 { gap:8px; }
+.w-full { width:100%; }
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- OFFLINE BANNER -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="offline-banner" class="offline-banner">⚠️ Mode Offline — Data akan disinkronkan saat online</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- TOAST CONTAINER -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SPLASH SCREEN -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="splash" class="splash">
+  <img src="splash.png" alt="KEDAI RAFFA" style="width:220px;height:auto;margin-bottom:16px;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.15);">
+  <div class="loader" style="margin-top:16px;"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- LOGIN SCREEN -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="login-screen" class="login-screen">
+  <img src="logo-brand.png" alt="KEDAI RAFFA" style="height:60px;width:auto;object-fit:contain;margin-bottom:8px;">
+  <div class="login-sub">Masukkan kode akses Anda</div>
+  <div class="login-tabs">
+    <button class="login-tab active" id="tab-kasir" onclick="setLoginRole('kasir')">Kasir</button>
+    <button class="login-tab" id="tab-owner" onclick="setLoginRole('owner')">Owner</button>
+  </div>
+  <div class="login-box">
+    <div class="input-group">
+      <label>Kode Akses</label>
+      <input type="password" id="kode-akses" class="input" placeholder="Masukkan kode" inputmode="text" autocomplete="off">
+    </div>
+    <button class="btn btn-primary" onclick="appLogin()">Masuk</button>
+    <div id="login-error" class="login-error">Kode akses tidak valid</div>
+  </div>
+
+  <!-- Tombol Install PWA -->
+  <div class="pwa-install-wrap" id="pwa-install-wrap" style="display:none;">
+    <button class="btn-install" id="btn-pwa-install" onclick="installPWA()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Install Aplikasi ke HP
+    </button>
+    <div class="pwa-installed-note" id="pwa-installed-note" style="display:none;">✓ Aplikasi sudah terinstall</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- APP SHELL (Owner & Kasir) -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="app-shell" class="app-shell">
+  <header class="app-header">
+    <img src="logo-brand.png" alt="KEDAI RAFFA" style="height:36px;width:auto;object-fit:contain;">
+    <div class="header-actions">
+      <button class="header-action" id="btn-notif" onclick="showNotifModal()" title="Notifikasi">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="badge-dot" id="notif-dot"></span>
+      </button>
+      <button class="header-action" onclick="appLogout()" title="Keluar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div id="stok-alert-banner" class="stok-alert"></div>
+
+  <main id="main-content" class="content">
+
+    <!-- ═══ PAGE: DASHBOARD OWNER ═══ -->
+    <div id="page-dashboard" class="page active">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Status Gerai</div><div class="card-value" id="dash-gerai-status" style="font-size:18px;">-</div></div>
+          <span id="dash-gerai-badge" class="badge badge-idle">-</span>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-box"><div class="label">Pendapatan Hari Ini</div><div class="value accent" id="dash-pendapatan">Rp 0</div></div>
+        <div class="stat-box"><div class="label">Pengeluaran</div><div class="value danger" id="dash-pengeluaran">Rp 0</div></div>
+        <div class="stat-box"><div class="label">Estimasi Laba</div><div class="value success" id="dash-laba">Rp 0</div></div>
+        <div class="stat-box"><div class="label">Transaksi</div><div class="value" id="dash-transaksi">0</div></div>
+      </div>
+      <div class="section-title">Menu Cepat</div>
+      <div class="menu-grid" style="grid-template-columns: repeat(2,1fr);">
+        <button class="card" onclick="navigateTo('monitoring')" style="text-align:left;"><div class="card-title">Monitoring</div><div style="font-size:20px;margin-top:8px;">📊</div></button>
+        <button class="card" onclick="navigateTo('keuangan')" style="text-align:left;"><div class="card-title">Keuangan</div><div style="font-size:20px;margin-top:8px;">💰</div></button>
+        <button class="card" onclick="navigateTo('gudang')" style="text-align:left;"><div class="card-title">Gudang</div><div style="font-size:20px;margin-top:8px;">📦</div></button>
+        <button class="card" onclick="navigateTo('audit')" style="text-align:left;"><div class="card-title">Audit Tutup</div><div style="font-size:20px;margin-top:8px;">🔒</div></button>
+        <button class="card" onclick="navigateTo('menu')" style="text-align:left;"><div class="card-title">Kelola Menu</div><div style="font-size:20px;margin-top:8px;">🍽️</div></button>
+        <button class="card" onclick="navigateTo('laporan')" style="text-align:left;"><div class="card-title">Laporan</div><div style="font-size:20px;margin-top:8px;">📄</div></button>
+        <button class="card" onclick="navigateTo('arsip-pesanan')" style="text-align:left;"><div class="card-title">Arsip Pesanan</div><div style="font-size:20px;margin-top:8px;">🗄️</div></button>
+        <button class="card" onclick="navigateTo('chat')" style="text-align:left;"><div class="card-title">Pesan</div><div style="font-size:20px;margin-top:8px;">💬</div></button>
+      </div>
+      <div class="section-title">Printer & Notifikasi</div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Printer</span><span id="printer-badge" class="badge badge-idle">OFFLINE</span></div>
+        <div class="list-item" style="margin-bottom:10px;">
+          <div class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></div>
+          <div class="info"><div class="name" id="printer-name">Belum terhubung</div><div class="meta" id="printer-state">Thermal Bluetooth ESC/POS</div></div>
+        </div>
+        <button class="btn btn-outline btn-sm" id="btn-pair" onclick="pairPrinter()" style="margin-bottom:8px;">Hubungkan Printer</button>
+        <button class="btn btn-outline btn-sm" id="btn-test-print" onclick="testPrint()" style="display:none;margin-bottom:8px;">Test Print</button>
+        <button class="btn btn-danger btn-sm" id="btn-forget" onclick="forgetPrinter()" style="display:none;">Lupakan Printer</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Notifikasi Push</span><span id="push-badge" class="badge badge-idle">NONAKTIF</span></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <img src="maskot.png" alt="Maskot" style="width:48px;height:48px;object-fit:contain;border-radius:50%;">
+          <p style="font-size:13px;color:var(--text-muted);margin:0;flex:1;" id="push-desc">Aktifkan notifikasi push untuk menerima alert pesanan baru.</p>
+        </div>
+        <button class="btn btn-outline btn-sm" id="btn-push" onclick="enablePush()">Aktifkan Notifikasi</button>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE: KASIR POS ═══ -->
+    <div id="page-kasir" class="page">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Kategori</span></div>
+        <div class="filter-chips">
+          <button class="btn btn-sm btn-primary" onclick="filterKasirMenu('all')" style="width:auto;white-space:nowrap;">Semua</button>
+          <button class="btn btn-sm btn-outline" onclick="filterKasirMenu('makanan')" style="width:auto;white-space:nowrap;">Makanan</button>
+          <button class="btn btn-sm btn-outline" onclick="filterKasirMenu('cemilan')" style="width:auto;white-space:nowrap;">Cemilan</button>
+          <button class="btn btn-sm btn-outline" onclick="filterKasirMenu('minuman')" style="width:auto;white-space:nowrap;">Minuman</button>
+          <button class="btn btn-sm btn-outline" onclick="filterKasirMenu('indomie')" style="width:auto;white-space:nowrap;">Indomie</button>
+        </div>
+      </div>
+      <div id="kasir-menu-grid" class="menu-grid"></div>
+      <div class="section-title">Ringkasan</div>
+      <div class="card">
+        <div class="flex-between">
+          <div><div class="card-title">Total Item</div><div class="card-value" id="kasir-total-item" style="font-size:20px;">0 cup</div></div>
+          <div style="text-align:right;"><div class="card-title">Total</div><div class="card-value accent" id="kasir-total-harga" style="font-size:24px;">Rp 0</div></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px;">
+          <button class="btn btn-outline" onclick="resetKasirCart()" style="flex:1;">Reset</button>
+          <button class="btn btn-primary" onclick="openCheckoutModal()" style="flex:2;">Catat Pesanan</button>
+        </div>
+      </div>
+      <div class="section-title">Riwayat Hari Ini</div>
+      <div id="kasir-riwayat"></div>
+    </div>
+
+    <!-- ═══ PAGE: MONITORING ═══ -->
+    <div id="page-monitoring" class="page">
+      <div class="stats-grid">
+        <div class="stat-box"><div class="label">Omzet</div><div class="value accent" id="mon-omzet">Rp 0</div></div>
+        <div class="stat-box"><div class="label">Cup Terjual</div><div class="value" id="mon-cup">0</div></div>
+        <div class="stat-box"><div class="label">Pesanan</div><div class="value" id="mon-pesanan">0</div></div>
+        <div class="stat-box"><div class="label">Tunai</div><div class="value success" id="mon-tunai">Rp 0</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Aktivitas Terkini</span></div>
+        <div id="mon-aktivitas"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Menu Terlaris</span></div>
+        <div id="mon-terlaris"></div>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE: KEUANGAN ═══ -->
+    <div id="page-keuangan" class="page">
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat-box"><div class="label">Pendapatan</div><div class="value accent" id="keu-pendapatan">Rp 0</div></div>
+        <div class="stat-box"><div class="label">Pengeluaran</div><div class="value danger" id="keu-pengeluaran">Rp 0</div></div>
+        <div class="stat-box"><div class="label">Estimasi Laba</div><div class="value success" id="keu-laba">Rp 0</div></div>
+      </div>
+      <div class="flex gap-2" style="margin-bottom:12px;">
+        <button class="btn btn-sm btn-primary" onclick="openModalTambahModal()" style="flex:1;">+ Modal</button>
+        <button class="btn btn-sm btn-outline" onclick="openModalCatatPengeluaran()" style="flex:1;">+ Pengeluaran</button>
+        <button class="btn btn-sm btn-outline" onclick="openModalCatatPemasukan()" style="flex:1;">+ Pemasukan</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Riwayat Keuangan</span></div>
+        <div id="keu-riwayat"></div>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE: GUDANG ═══ -->
+    <div id="page-gudang" class="page">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Stok Gerai Real-time</span></div>
+        <div id="gudang-stok-list"></div>
+      </div>
+      <button class="btn btn-primary" onclick="openModalTambahStok()" style="margin-top:12px;">Tambah Stok</button>
+    </div>
+
+    <!-- ═══ PAGE: MENU ═══ -->
+    <div id="page-menu" class="page">
+      <div class="flex gap-2" style="margin-bottom:12px;">
+        <button class="btn btn-primary" onclick="openModalTambahMenu()" style="flex:1;">+ Tambah Menu</button>
+      </div>
+      <div id="menu-list"></div>
+    </div>
+
+    <!-- ═══ PAGE: LOGISTIK ═══ -->
+    <div id="page-logistik" class="page">
+      <div class="flex gap-2" style="margin-bottom:12px;">
+        <button class="btn btn-primary" onclick="openModalTambahLogistik()" style="flex:1;">+ Tambah Logistik</button>
+      </div>
+      <div id="logistik-list"></div>
+    </div>
+
+    <!-- ═══ PAGE: AUDIT TUTUP ═══ -->
+    <div id="page-audit" class="page">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Audit Tutup Gerai</span></div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Pastikan semua pesanan sudah selesai sebelum audit.</p>
+        <div id="audit-pesanan-aktif-warning" style="display:none;margin-bottom:16px;padding:12px;background:var(--danger-soft);border-radius:var(--radius-sm);border:1px solid rgba(201,124,124,0.2);">
+          <p style="font-size:13px;color:var(--danger);font-weight:600;">⚠️ Masih ada pesanan aktif!</p>
+          <div id="audit-pesanan-aktif-list"></div>
+          <div class="flex gap-2" style="margin-top:12px;">
+            <button class="btn btn-danger btn-sm" onclick="auditBatalkanSemua()">Batalkan Semua</button>
+            <button class="btn btn-outline btn-sm" onclick="auditSelesaikanManual()">Selesaikan Manual</button>
+          </div>
+        </div>
+        <div class="input-group"><label>Uang Tunai Fisik (Rp)</label><input type="number" id="audit-tunai" class="input" placeholder="0" min="0" oninput="hitungSelisihAudit()"></div>
+        <div class="input-group"><label>QRIS Dikonfirmasi (Rp)</label><input type="number" id="audit-qris" class="input" placeholder="0" min="0" oninput="hitungSelisihAudit()"></div>
+        <div class="input-group"><label>Total Pendapatan (Sistem)</label><input type="text" id="audit-pendapatan" class="input" readonly value="Rp 0"></div>
+        <div class="input-group"><label>Selisih</label><input type="text" id="audit-selisih" class="input" readonly value="Rp 0"></div>
+        <div class="input-group"><label>Alasan Selisih</label><textarea id="audit-alasan" class="input" placeholder="Wajib diisi jika ada selisih"></textarea></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Audit Logistik</span></div>
+        <div id="audit-logistik-list"></div>
+      </div>
+      <button class="btn btn-primary btn-lg" onclick="submitAuditTutup()" style="margin-top:16px;">Submit Audit & Tutup Gerai</button>
+    </div>
+
+    <!-- ═══ PAGE: LAPORAN ═══ -->
+    <div id="page-laporan" class="page">
+      <div class="filter-chips" style="margin-bottom:12px;">
+        <button class="btn btn-sm btn-primary" onclick="filterLaporan('hari_ini')" style="width:auto;">Hari Ini</button>
+        <button class="btn btn-sm btn-outline" onclick="filterLaporan('kemarin')" style="width:auto;">Kemarin</button>
+        <button class="btn btn-sm btn-outline" onclick="filterLaporan('minggu_ini')" style="width:auto;">Minggu Ini</button>
+        <button class="btn btn-sm btn-outline" onclick="filterLaporan('bulan_ini')" style="width:auto;">Bulan Ini</button>
+        <button class="btn btn-sm btn-outline" onclick="filterLaporan('custom')" style="width:auto;">Custom</button>
+      </div>
+      <div id="laporan-custom-range" style="display:none;margin-bottom:12px;">
+        <div class="flex gap-2">
+          <div class="input-group" style="flex:1;margin-bottom:0;"><input type="date" id="laporan-from" class="input"></div>
+          <div class="input-group" style="flex:1;margin-bottom:0;"><input type="date" id="laporan-to" class="input"></div>
+          <button class="btn btn-primary btn-sm" onclick="loadLaporanCustom()" style="width:auto;">OK</button>
+        </div>
+      </div>
+      <div id="laporan-summary" class="card" style="margin-bottom:12px;">
+        <div class="stats-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:0;">
+          <div class="stat-box" style="margin-bottom:0;"><div class="label">Total Pendapatan</div><div class="value accent" id="lap-pendapatan">Rp 0</div></div>
+          <div class="stat-box" style="margin-bottom:0;"><div class="label">Total Pengeluaran</div><div class="value danger" id="lap-pengeluaran">Rp 0</div></div>
+          <div class="stat-box" style="margin-bottom:0;"><div class="label">Estimasi Laba</div><div class="value success" id="lap-laba">Rp 0</div></div>
+          <div class="stat-box" style="margin-bottom:0;"><div class="label">Jumlah Transaksi</div><div class="value" id="lap-transaksi">0</div></div>
+        </div>
+      </div>
+      <div class="flex gap-2" style="margin-bottom:12px;">
+        <button class="btn btn-outline btn-sm" onclick="exportLaporan('print')" style="flex:1;">🖨️ Print</button>
+        <button class="btn btn-outline btn-sm" onclick="exportLaporan('pdf')" style="flex:1;">📄 PDF</button>
+      </div>
+      <div id="laporan-list"></div>
+    </div>
+
+    <!-- ═══ PAGE: ARSIP PESANAN ═══ -->
+    <div id="page-arsip-pesanan" class="page">
+      <div class="input-group"><input type="date" id="arsip-tanggal" class="input" onchange="loadArsipPesanan()"></div>
+      <div id="arsip-pesanan-content"></div>
+    </div>
+
+    <!-- ═══ PAGE: ARSIP LOGISTIK ═══ -->
+    <div id="page-arsip-logistik" class="page">
+      <div class="input-group"><input type="date" id="arsip-log-tanggal" class="input" onchange="loadArsipLogistik()"></div>
+      <div id="arsip-logistik-content"></div>
+    </div>
+
+    <!-- ═══ PAGE: HISTORY ═══ -->
+    <div id="page-history" class="page">
+      <div class="card">
+        <div class="card-header"><span class="card-title">History Penjualan</span></div>
+        <div id="history-list"></div>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE: CHAT ═══ -->
+    <div id="page-chat" class="page">
+      <div id="chat-messages" style="max-height:60vh;overflow-y:auto;margin-bottom:12px;"></div>
+      <div class="flex gap-2">
+        <input type="text" id="chat-input" class="input" placeholder="Ketik pesan..." style="flex:1;margin-bottom:0;" onkeypress="if(event.key==='Enter')sendChatMessage()">
+        <button class="btn btn-primary" onclick="sendChatMessage()" style="width:auto;padding:14px 20px;">Kirim</button>
+      </div>
+    </div>
+
+    <!-- ═══ PAGE: ADMINISTRASI ═══ -->
+    <div id="page-administrasi" class="page">
+      <div class="section-title">Master Data</div>
+      <button class="list-item" onclick="navigateTo('menu')" style="width:100%;text-align:left;">
+        <div class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></div>
+        <div class="info"><div class="name">Kelola Menu</div><div class="meta">CRUD menu & mapping logistik</div></div>
+      </button>
+      <button class="list-item" onclick="navigateTo('logistik')" style="width:100%;text-align:left;">
+        <div class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+        <div class="info"><div class="name">Kelola Logistik</div><div class="meta">Master data item logistik</div></div>
+      </button>
+      <div class="section-title">Data</div>
+      <button class="list-item" onclick="exportBackup()" style="width:100%;text-align:left;">
+        <div class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+        <div class="info"><div class="name">Backup Data (JSON)</div><div class="meta">Export seluruh master data</div></div>
+      </button>
+      <button class="list-item" onclick="importBackup()" style="width:100%;text-align:left;">
+        <div class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+        <div class="info"><div class="name">Restore Data (JSON)</div><div class="meta">Import dari file backup</div></div>
+      </button>
+      <button class="list-item" onclick="resetData()" style="width:100%;text-align:left;">
+        <div class="icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></div>
+        <div class="info"><div class="name">Reset Data</div><div class="meta">Butuh kode dev: reset###3</div></div>
+      </button>
+    </div>
+
+    <!-- ═══ PAGE: SETUP ═══ -->
+    <div id="page-setup" class="page">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Setup Awal Gerai</span></div>
+        <div class="input-group"><label>Nama Gerai</label><input type="text" id="setup-nama" class="input" value="KEDAI RAFFA"></div>
+        <div class="input-group"><label>Alamat</label><textarea id="setup-alamat" class="input" placeholder="Alamat gerai"></textarea></div>
+        <div class="input-group"><label>Jam Operasional</label><input type="text" id="setup-jam" class="input" placeholder="08:00 - 22:00"></div>
+        <button class="btn btn-primary" onclick="saveSetup()">Simpan Setup</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Tambah Kasir</span></div>
+        <div class="input-group"><label>Nama Kasir</label><input type="text" id="setup-kasir-nama" class="input" placeholder="Nama lengkap"></div>
+        <div class="input-group"><label>Kode Akses</label><input type="text" id="setup-kasir-kode" class="input" placeholder="Min 4 digit angka" inputmode="numeric"></div>
+        <button class="btn btn-outline" onclick="tambahKasir()">Tambah Kasir</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Daftar Kasir</span></div>
+        <div id="setup-kasir-list"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ═══ BOTTOM NAV ═══ -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <button class="nav-item active" onclick="navigateTo('dashboard')" data-page="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span>Beranda</span>
+    </button>
+    <button class="nav-item" onclick="navigateTo('kasir')" data-page="kasir">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <span>Kasir</span>
+    </button>
+    <button class="nav-item" onclick="navigateTo('monitoring')" data-page="monitoring">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span>Monitor</span>
+    </button>
+    <button class="nav-item" onclick="navigateTo('gudang')" data-page="gudang">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      <span>Stok</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- QR ORDERING PUBLIC PAGE -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="qr-page" class="qr-page hidden">
+  <div class="qr-header">
+    <img src="logo-brand.png" alt="KEDAI RAFFA" style="height:48px;width:auto;object-fit:contain;margin-bottom:8px;">
+    <p id="qr-gerai-status">Memuat status gerai...</p>
+    <div id="qr-status-badge" class="qr-status-badge badge-success" style="display:none;">🟢 BUKA</div>
+  </div>
+  <div class="content" style="padding-top:20px;">
+    <div id="qr-order-form">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Identitas</span></div>
+        <div class="input-group"><label>Nama *</label><input type="text" id="qr-nama" class="input" placeholder="Nama Anda" minlength="2"></div>
+        <div class="input-group"><label>Nomor WA (opsional)</label><input type="tel" id="qr-wa" class="input" placeholder="081234567890"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Metode Ambil</span></div>
+        <div class="flex gap-2">
+          <button class="btn btn-primary" id="qr-ambil-sendiri" onclick="setQRAmbil('ambil_sendiri')" style="flex:1;">Ambil Sendiri</button>
+          <button class="btn btn-outline" id="qr-diantar" onclick="setQRAmbil('diantar')" style="flex:1;">Diantar</button>
+        </div>
+      </div>
+      <div class="section-title">Pilih Menu</div>
+      <div id="qr-menu-grid" class="menu-grid"></div>
+      <div class="card" style="position:sticky;bottom:16px;background:var(--header);border-color:var(--border);">
+        <div class="flex-between" style="margin-bottom:12px;">
+          <span style="font-size:13px;color:var(--text-muted);">Total</span>
+          <span style="font-size:20px;font-weight:700;color:var(--accent);" id="qr-total">Rp 0</span>
+        </div>
+        <button class="btn btn-primary btn-lg" onclick="submitQROrder()">Pesan Sekarang</button>
+      </div>
+    </div>
+    <div id="qr-order-tracking" style="display:none;">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Status Pesanan</span></div>
+        <div style="text-align:center;padding:20px;">
+          <div style="font-size:32px;font-weight:700;color:var(--accent);" id="qr-kode">-</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-top:8px;">Kode Pesanan</div>
+        </div>
+        <div class="timeline" style="margin-top:20px;">
+          <div class="timeline-item"><div class="timeline-dot active" id="dot-pending"></div><div class="timeline-title">Pending</div><div class="timeline-time">Menunggu konfirmasi kasir</div></div>
+          <div class="timeline-item"><div class="timeline-dot" id="dot-diterima"></div><div class="timeline-title">Diterima</div><div class="timeline-time">Pesanan dikonfirmasi</div></div>
+          <div class="timeline-item"><div class="timeline-dot" id="dot-diproses"></div><div class="timeline-title">Diproses</div><div class="timeline-time">Sedang disiapkan</div></div>
+          <div class="timeline-item"><div class="timeline-dot" id="dot-selesai"></div><div class="timeline-title">Selesai</div><div class="timeline-time">Siap diambil</div></div>
+        </div>
+      </div>
+      <button class="btn btn-outline" onclick="location.reload()">Pesan Lagi</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MODAL OVERLAY -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Modal</div>
+      <button class="modal-close" onclick="closeModal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- KERANJANG PANEL (Kasir) -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="cart-panel" class="cart-panel">
+  <div class="cart-header">
+    <span style="font-size:14px;font-weight:600;">Keranjang</span>
+    <button class="btn-ghost" onclick="toggleCart()" style="width:auto;padding:4px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div id="cart-items"></div>
+  <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:12px;">
+    <div class="flex-between">
+      <span style="font-size:13px;color:var(--text-muted);">Total</span>
+      <span class="cart-total" id="cart-total">Rp 0</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SCRIPTS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<script>
+
+// ═══════════════════════════════════════════════════════════
+// CONFIG & CONSTANTS
+// ═══════════════════════════════════════════════════════════
+const CONFIG = {
+  SUPABASE_URL: 'https://obcijbiyxqrvrhlzqjqb.supabase.co',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iY2lqYml5eHFydnJobHpxanFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1MDczNjYsImV4cCI6MjEwMTA4MzM2Nn0.eowHPYIMTWqBjTxEivZAX7BtzrWkS-efw983g9aSryU',
+  VAPID_PUBLIC_KEY: 'BCrjorU7wTJOi1pp9EyRy4clWgNoBW6wrxUM025MdHIhRG50eFlZ25pggfSWGD54mz1r0Wx47etU3oUHayJKI3s',
+  APP_NAME: 'KEDAI RAFFA',
+  APP_VERSION: '1.5.0',
+  TIMEZONE: 'Asia/Jakarta',
+  DEV_RESET_CODE: 'reset###3',
+  QR_IDLE_MINUTES: 30,
+  PENDING_AUTO_CANCEL_MINUTES: 10,
+  EDIT_GRACE_MINUTES: 5,
+  MAX_QRIS_KB: 200
+};
+
+// ═══════════════════════════════════════════════════════════
+// SUPABASE CLIENT
+// ═══════════════════════════════════════════════════════════
+let supabase = null;
+function initSupabase() {
+  if (!window.supabase) { console.error('Supabase library not loaded'); return false; }
+  supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+  return true;
+}
+
+// ═══════════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════════
+const Utils = {
+  formatRupiah(n) {
+    if (n === null || n === undefined) return 'Rp 0';
+    return 'Rp' + Math.floor(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  },
+  parseRupiah(s) {
+    return parseInt((s || '').replace(/[^0-9]/g, '')) || 0;
+  },
+  formatDate(d) {
+    const date = d ? new Date(d) : new Date();
+    return date.toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric', timeZone:CONFIG.TIMEZONE });
+  },
+  formatDateShort(d) {
+    const date = d ? new Date(d) : new Date();
+    const dd = String(date.getDate()).padStart(2,'0');
+    const mm = String(date.getMonth()+1).padStart(2,'0');
+    const yy = String(date.getFullYear()).slice(2);
+    return `${dd}/${mm}/${yy}`;
+  },
+  formatTime(d) {
+    const date = d ? new Date(d) : new Date();
+    return date.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit', hour12:false, timeZone:CONFIG.TIMEZONE });
+  },
+  formatDateTime(d) {
+    return this.formatDateShort(d) + ' ' + this.formatTime(d);
+  },
+  todayISO() {
+    const now = new Date();
+    const tzOffset = now.getTimezoneOffset() * 60000;
+    const localISOTime = (new Date(now - tzOffset)).toISOString().slice(0,10);
+    return localISOTime;
+  },
+  nowISO() {
+    return new Date().toISOString();
+  },
+  isOnline() { return navigator.onLine; },
+  debounce(fn, ms) {
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(()=>fn(...args), ms); };
+  },
+  uuid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random()*16|0, v = c=='x'?r:(r&0x3|0x8);
+      return v.toString(16);
+    });
+  },
+  compressImage(base64, maxKB=200, maxWidth=800) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        let q = 0.5, result;
+        do { result = canvas.toDataURL('image/jpeg', q); q -= 0.05; }
+        while (result.length > maxKB*1024 && q > 0.1);
+        resolve(result);
+      };
+      img.src = base64;
+    });
+  },
+  generateKodeLaporan(tanggal, urutan) {
+    const t = tanggal.replace(/-/g,'');
+    const cc = String(urutan).padStart(2,'0');
+    return `KDRF-${t}-${cc}-P`;
+  }
+};
+
+// ═══════════════════════════════════════════════════════════
+// LOCAL STORAGE / SESSION
+// ═══════════════════════════════════════════════════════════
+const Store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch(e) { return null; } },
+  set(k,v) { localStorage.setItem(k, JSON.stringify(v)); },
+  remove(k) { localStorage.removeItem(k); },
+  getUser() { return this.get('kr_user') || {}; },
+  setUser(u) { this.set('kr_user', u); },
+  clearUser() { this.remove('kr_user'); this.remove('kr_session'); },
+  getSession() { return this.get('kr_session') || {}; },
+  setSession(s) { this.set('kr_session', s); },
+  getQRCart() { return this.get('kr_qr_cart') || {}; },
+  setQRCart(c) { this.set('kr_qr_cart', c); },
+  getQRAmbil() { return this.get('kr_qr_ambil') || 'ambil_sendiri'; },
+  setQRAmbil(a) { this.set('kr_qr_ambil', a); }
+};
+
+// ═══════════════════════════════════════════════════════════
+// GLOBAL STATE
+// ═══════════════════════════════════════════════════════════
+let currentUser = null;
+let currentPage = 'dashboard';
+let loginRole = 'kasir';
+let kasirCart = {};
+let qrCart = {};
+let qrAmbil = 'ambil_sendiri';
+let currentModal = null;
+let masterMenu = [];
+let masterLogistik = [];
+let masterKategori = [];
+let printerDevice = null;
+let printerServer = null;
+let isPushEnabled = false;
+let subsRealtime = [];
+let pendingNotifCount = 0;
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+  setTimeout(() => document.getElementById('splash').classList.add('hidden'), 4000);
+  if (!initSupabase()) { showToast('Gagal init Supabase', 'error'); return; }
+
+  // Offline listener
+  window.addEventListener('online', () => { document.getElementById('offline-banner').classList.remove('show'); showToast('Kembali online', 'success'); });
+  window.addEventListener('offline', () => { document.getElementById('offline-banner').classList.add('show'); showToast('Mode offline aktif', 'warning'); });
+  if (!Utils.isOnline()) document.getElementById('offline-banner').classList.add('show');
+
+  // Check URL for QR ordering
+  const path = window.location.pathname;
+  if (path === '/order' || path.startsWith('/order/')) {
+    document.getElementById('splash').classList.add('hidden');
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app-shell').classList.remove('active');
+    document.getElementById('qr-page').classList.remove('hidden');
+    await initQROrdering();
+    return;
+  }
+
+  // Resume session
+  const user = Store.getUser();
+  if (user && user.id) {
+    currentUser = user;
+    await supabase.rpc('set_user_context', { user_id: user.id });
+    showApp(user);
+  } else {
+    document.getElementById('splash').classList.add('hidden');
+  }
+
+  // Keyboard shortcut login
+  document.getElementById('kode-akses').addEventListener('keypress', (e) => { if (e.key === 'Enter') appLogin(); });
+});
+
+// ═══════════════════════════════════════════════════════════
+// LOGIN & AUTH
+// ═══════════════════════════════════════════════════════════
+function setLoginRole(role) {
+  loginRole = role;
+  document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + role).classList.add('active');
+}
+
+async function appLogin() {
+  const kode = document.getElementById('kode-akses').value.trim();
+  if (!kode) { showToast('Kode akses wajib diisi', 'error'); return; }
+  try {
+    const { data, error } = await supabase.rpc('login_by_code', {
+      p_code: kode,
+      p_role: loginRole
+    });
+    if (error) throw error;
+    if (!data || data.length === 0) { throw new Error('Kode akses tidak valid'); }
+    const user = data[0];
+    currentUser = { id: user.id, nama: user.nama, role: user.role };
+    Store.setUser(currentUser);
+    // WAJIB: Set RLS context ke database
+    await supabase.rpc('set_user_context', { user_id: user.id });
+    showApp(currentUser);
+    showToast('Selamat datang, ' + user.nama, 'success');
+  } catch (e) {
+    const err = document.getElementById('login-error');
+    err.textContent = e.message || 'Kode akses tidak valid';
+    err.classList.add('show');
+    setTimeout(() => err.classList.remove('show'), 3000);
+  }
+}
+
+async function showApp(user) {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app-shell').classList.add('active');
+  // Re-set RLS context saat resume session
+  await supabase.rpc('set_user_context', { user_id: user.id });
+  const nav = document.getElementById('bottom-nav');
+  const items = nav.querySelectorAll('.nav-item');
+  if (user.role === 'owner') {
+    items[0].querySelector('span').textContent = 'Beranda';
+    items[1].style.display = 'none';
+  } else {
+    items[0].querySelector('span').textContent = 'Kasir';
+    items[0].setAttribute('onclick', "navigateTo('kasir')");
+    items[0].setAttribute('data-page', 'kasir');
+    items[1].style.display = 'flex';
+  }
+  navigateTo(user.role === 'owner' ? 'dashboard' : 'kasir');
+  loadDashboardStats();
+  updatePrinterUI();
+  updatePushUI();
+  initRealtime();
+}
+
+function appLogout() {
+  if (!confirm('Keluar dari aplikasi?')) return;
+  Store.clearUser();
+  subsRealtime.forEach(s => { try { s.unsubscribe(); } catch(e){} });
+  subsRealtime = [];
+  location.reload();
+}
+
+// ═══════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════
+function navigateTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + page);
+  if (target) target.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navBtn = document.querySelector('.nav-item[data-page="' + page + '"]');
+  if (navBtn) navBtn.classList.add('active');
+  currentPage = page;
+  if (page === 'dashboard') loadDashboardStats();
+  if (page === 'kasir') loadKasirMenu();
+  if (page === 'monitoring') loadMonitoring();
+  if (page === 'keuangan') loadKeuangan();
+  if (page === 'gudang') loadGudang();
+  if (page === 'menu') loadMenuList();
+  if (page === 'logistik') loadLogistikList();
+  if (page === 'audit') loadAuditPage();
+  if (page === 'laporan') loadLaporan('hari_ini');
+  if (page === 'arsip-pesanan') { document.getElementById('arsip-tanggal').value = Utils.todayISO(); loadArsipPesanan(); }
+  if (page === 'arsip-logistik') { document.getElementById('arsip-log-tanggal').value = Utils.todayISO(); loadArsipLogistik(); }
+  if (page === 'history') loadHistory();
+  if (page === 'chat') loadChat();
+  if (page === 'administrasi') loadAdministrasi();
+  if (page === 'setup') loadSetup();
+}
+
+// ═══════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════
+function showToast(msg, type='info') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast toast-' + type;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('show'));
+  setTimeout(() => { toast.classList.remove('show'); setTimeout(()=>toast.remove(), 300); }, 3000);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════════════════
+function openModal(title, html) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('show');
+  currentModal = title;
+}
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal-overlay')) return;
+  document.getElementById('modal-overlay').classList.remove('show');
+  currentModal = null;
+}
+
+// ═══════════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════════
+async function loadDashboardStats() {
+  try {
+    const { data: gerai } = await supabase.from('gerai').select('*').single();
+    const status = gerai?.status || 'tutup';
+    document.getElementById('dash-gerai-status').textContent = status === 'buka' ? 'BUKA' : 'TUTUP';
+    const badge = document.getElementById('dash-gerai-badge');
+    badge.textContent = status.toUpperCase();
+    badge.className = 'badge ' + (status === 'buka' ? 'badge-success' : 'badge-idle');
+
+    const today = Utils.todayISO();
+    const { data: keuPendapatan } = await supabase.from('keuangan').select('jumlah').eq('jenis','pendapatan').gte('created_at', today).lte('created_at', today + 'T23:59:59');
+    const { data: keuPengeluaran } = await supabase.from('keuangan').select('jumlah').eq('jenis','pengeluaran').gte('created_at', today).lte('created_at', today + 'T23:59:59');
+    const pendapatan = (keuPendapatan || []).reduce((s,i)=>s+(i.jumlah||0),0);
+    const pengeluaran = (keuPengeluaran || []).reduce((s,i)=>s+(i.jumlah||0),0);
+    document.getElementById('dash-pendapatan').textContent = Utils.formatRupiah(pendapatan);
+    document.getElementById('dash-pengeluaran').textContent = Utils.formatRupiah(pengeluaran);
+    document.getElementById('dash-laba').textContent = Utils.formatRupiah(pendapatan - pengeluaran);
+
+    const { data: transaksi } = await supabase.from('transaksi').select('id').eq('status','selesai').gte('created_at', today).lte('created_at', today + 'T23:59:59');
+    document.getElementById('dash-transaksi').textContent = (transaksi || []).length;
+  } catch (e) { console.error('Dashboard error:', e); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// KASIR POS
+// ═══════════════════════════════════════════════════════════
+async function loadKasirMenu(kategori='all') {
+  try {
+    let query = supabase.from('menu').select('*').eq('is_active', true);
+    if (kategori !== 'all') query = query.eq('kategori', kategori);
+    const { data: menu, error } = await query.order('nama', { ascending: true });
+    if (error) throw error;
+    masterMenu = menu || [];
+    const grid = document.getElementById('kasir-menu-grid');
+    grid.innerHTML = (menu || []).map(m => `
+      <div class="menu-card" onclick="addToKasirCart('${m.id}', '${m.nama.replace(/'/g,"\'")}', ${m.harga})">
+        <div class="menu-name">${m.nama}</div>
+        <div class="menu-price">${Utils.formatRupiah(m.harga)}</div>
+        <div class="menu-qty">
+          <button class="qty-btn" onclick="event.stopPropagation();changeKasirQty('${m.id}', -1)">−</button>
+          <span class="qty-value" id="qty-${m.id}">${kasirCart[m.id]?.jumlah || 0}</span>
+          <button class="qty-btn" onclick="event.stopPropagation();changeKasirQty('${m.id}', 1)">+</button>
+        </div>
+      </div>
+    `).join('');
+    updateKasirSummary();
+    loadKasirRiwayat();
+  } catch (e) { console.error('Kasir menu error:', e); showToast('Gagal memuat menu', 'error'); }
+}
+
+function filterKasirMenu(kat) {
+  loadKasirMenu(kat);
+  const btns = document.querySelectorAll('#page-kasir .btn-sm');
+  btns.forEach(b => { b.classList.remove('btn-primary'); b.classList.add('btn-outline'); });
+  event.target.classList.remove('btn-outline');
+  event.target.classList.add('btn-primary');
+}
+
+function addToKasirCart(menuId, nama, harga) {
+  if (!kasirCart[menuId]) kasirCart[menuId] = { menu_id: menuId, nama, harga, jumlah: 0, catatan: '' };
+  kasirCart[menuId].jumlah++;
+  const el = document.getElementById('qty-' + menuId);
+  if (el) el.textContent = kasirCart[menuId].jumlah;
+  updateKasirSummary();
+}
+
+function changeKasirQty(menuId, delta) {
+  if (!kasirCart[menuId]) return;
+  kasirCart[menuId].jumlah += delta;
+  if (kasirCart[menuId].jumlah <= 0) delete kasirCart[menuId];
+  const el = document.getElementById('qty-' + menuId);
+  if (el) el.textContent = kasirCart[menuId]?.jumlah || 0;
+  updateKasirSummary();
+}
+
+function updateKasirSummary() {
+  const items = Object.values(kasirCart);
+  const totalItem = items.reduce((s, i) => s + i.jumlah, 0);
+  const totalHarga = items.reduce((s, i) => s + (i.harga * i.jumlah), 0);
+  document.getElementById('kasir-total-item').textContent = totalItem + ' cup';
+  document.getElementById('kasir-total-harga').textContent = Utils.formatRupiah(totalHarga);
+}
+
+function resetKasirCart() {
+  kasirCart = {};
+  loadKasirMenu();
+}
+
+function openCheckoutModal() {
+  const items = Object.values(kasirCart);
+  if (!items.length) { showToast('Keranjang kosong', 'warning'); return; }
+  const total = items.reduce((s,i)=>s+(i.harga*i.jumlah),0);
+  openModal('Checkout', `
+    <div style="margin-bottom:16px;">
+      ${items.map(it => `<div class="flex-between" style="margin-bottom:8px;"><span>${it.jumlah}x ${it.nama}</span><span>${Utils.formatRupiah(it.harga*it.jumlah)}</span></div>`).join('')}
+      <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:10px;" class="flex-between">
+        <span style="font-weight:700;">Total</span><span style="font-weight:700;color:var(--accent);">${Utils.formatRupiah(total)}</span>
+      </div>
+    </div>
+    <div class="input-group"><label>Metode Pembayaran</label>
+      <select id="checkout-metode" class="input" onchange="toggleQRISUpload()">
+        <option value="tunai">Tunai</option>
+        <option value="qris">QRIS</option>
+      </select>
+    </div>
+    <div class="input-group" id="qris-upload-group" style="display:none;">
+      <label>Upload Bukti QRIS</label>
+      <input type="file" id="checkout-bukti" class="input" accept="image/*" onchange="previewBuktiQRIS(this)">
+      <img id="qris-preview" style="max-width:100%;margin-top:8px;border-radius:8px;display:none;">
+    </div>
+    <button class="btn btn-primary" onclick="submitKasirOrder()">Konfirmasi Pesanan</button>
+  `);
+}
+
+function toggleQRISUpload() {
+  const metode = document.getElementById('checkout-metode').value;
+  document.getElementById('qris-upload-group').style.display = metode === 'qris' ? 'block' : 'none';
+}
+
+function previewBuktiQRIS(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById('qris-preview').src = e.target.result;
+    document.getElementById('qris-preview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitKasirOrder() {
+  const items = Object.values(kasirCart);
+  if (!items.length) return;
+  const metode = document.getElementById('checkout-metode').value;
+  let buktiUrl = null;
+  if (metode === 'qris') {
+    const fileInput = document.getElementById('checkout-bukti');
+    if (!fileInput.files[0]) { showToast('Wajib upload bukti QRIS', 'error'); return; }
+    const compressed = await Utils.compressImage(URL.createObjectURL(fileInput.files[0]));
+    const fileName = 'qris_' + Date.now() + '.jpg';
+    const { data: upData, error: upError } = await supabase.storage.from('bukti-qris').upload(fileName, await (await fetch(compressed)).blob(), { contentType: 'image/jpeg' });
+    if (upError) { showToast('Gagal upload bukti', 'error'); return; }
+    const { data: { publicUrl } } = supabase.storage.from('bukti-qris').getPublicUrl(fileName);
+    buktiUrl = publicUrl;
+  }
+  const total = items.reduce((s,i)=>s+(i.harga*i.jumlah),0);
+  const totalCup = items.reduce((s,i)=>s+i.jumlah,0);
+  try {
+    const { data: trx, error } = await supabase.from('transaksi').insert({
+      kasir_id: currentUser.id,
+      metode,
+      status: 'selesai',
+      sumber: 'kasir',
+      total_cup: totalCup,
+      bukti_qris: buktiUrl,
+      created_at: Utils.nowISO(),
+      updated_at: Utils.nowISO()
+    }).select().single();
+    if (error) throw error;
+    const itemInserts = items.map(it => ({
+      transaksi_id: trx.id,
+      menu_id: it.menu_id,
+      jumlah: it.jumlah,
+      harga_satuan: it.harga,
+      catatan: it.catatan || ''
+    }));
+    await supabase.from('transaksi_item').insert(itemInserts);
+    kasirCart = {};
+    closeModal();
+    showToast('Pesanan berhasil dicatat', 'success');
+    loadKasirMenu();
+    loadKasirRiwayat();
+    if (printerDevice) await printNota(trx, items);
+  } catch (e) { console.error(e); showToast('Gagal mencatat pesanan', 'error'); }
+}
+
+async function loadKasirRiwayat() {
+  try {
+    const today = Utils.todayISO();
+    const { data: trx } = await supabase.from('transaksi').select('*, transaksi_item(menu_id, jumlah)').eq('kasir_id', currentUser.id).eq('sumber','kasir').gte('created_at', today).lte('created_at', today+'T23:59:59').order('created_at', { ascending: false }).limit(10);
+    const list = document.getElementById('kasir-riwayat');
+    if (!trx || !trx.length) { list.innerHTML = '<div class="empty-state">Belum ada transaksi hari ini</div>'; return; }
+    list.innerHTML = trx.map(t => {
+      const items = t.transaksi_item || [];
+      const totalCup = items.reduce((s,i)=>s+i.jumlah,0);
+      const jam = Utils.formatTime(t.created_at);
+      return `<div class="list-item" style="cursor:default;">
+        <div class="info"><div class="name">${totalCup} cup · ${jam}</div><div class="meta">${t.metode.toUpperCase()}</div></div>
+        <span class="badge ${t.status==='selesai'?'badge-success':'badge-idle'}">${t.status}</span>
+      </div>`;
+    }).join('');
+  } catch (e) { console.error(e); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// MONITORING
+// ═══════════════════════════════════════════════════════════
+async function loadMonitoring() {
+  try {
+    const today = Utils.todayISO();
+    const { data: keuPendapatan } = await supabase.from('keuangan').select('jumlah, sub_jenis').eq('jenis','pendapatan').gte('created_at', today).lte('created_at', today + 'T23:59:59');
+    const { data: transaksi } = await supabase.from('transaksi').select('*, transaksi_item(menu_id, jumlah)').eq('status','selesai').gte('created_at', today).lte('created_at', today + 'T23:59:59');
+    const omzet = (keuPendapatan || []).reduce((s,i)=>s+(i.jumlah||0),0);
+    const tunai = (keuPendapatan || []).filter(i=>i.sub_jenis==='penjualan_tunai').reduce((s,i)=>s+(i.jumlah||0),0);
+    const cup = (transaksi || []).reduce((s,t)=>s+(t.transaksi_item||[]).reduce((ss,ii)=>ss+ii.jumlah,0),0);
+    document.getElementById('mon-omzet').textContent = Utils.formatRupiah(omzet);
+    document.getElementById('mon-cup').textContent = cup;
+    document.getElementById('mon-pesanan').textContent = (transaksi || []).length;
+    document.getElementById('mon-tunai').textContent = Utils.formatRupiah(tunai);
+
+    // Aktivitas terkini
+    const { data: aktivitas } = await supabase.from('transaksi').select('*, transaksi_item(menu_id, jumlah)').gte('created_at', today).lte('created_at', today + 'T23:59:59').order('created_at', { ascending: false }).limit(20);
+    const actList = document.getElementById('mon-aktivitas');
+    actList.innerHTML = (aktivitas || []).map(t => {
+      const cup = (t.transaksi_item || []).reduce((s,i)=>s+i.jumlah,0);
+      return `<div class="list-item" style="cursor:default;"><div class="info"><div class="name">${t.sumber==='qr_ordering'?'QR':'Kasir'} · ${cup} cup</div><div class="meta">${Utils.formatTime(t.created_at)} · ${t.metode.toUpperCase()}</div></div></div>`;
+    }).join('') || '<div class="empty-state">Belum ada aktivitas</div>';
+
+    // Menu terlaris
+    const menuCount = {};
+    (transaksi || []).forEach(t => {
+      (t.transaksi_item || []).forEach(it => { menuCount[it.menu_id] = (menuCount[it.menu_id]||0)+it.jumlah; });
+    });
+    const topMenu = Object.entries(menuCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const menuNames = {};
+    masterMenu.forEach(m => menuNames[m.id] = m.nama);
+    const terlaris = document.getElementById('mon-terlaris');
+    terlaris.innerHTML = topMenu.length ? topMenu.map(([mid, jml]) => `
+      <div style="margin-bottom:10px;"><div class="flex-between" style="margin-bottom:4px;"><span style="font-size:13px;">${menuNames[mid]||'Menu'}</span><span style="font-size:13px;font-weight:700;">${jml}</span></div>
+      <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;"><div style="height:100%;background:var(--accent);width:${Math.min(100,(jml/(topMenu[0][1]||1))*100)}%;"></div></div></div>
+    `).join('') : '<div class="empty-state">Belum ada data</div>';
+  } catch (e) { console.error('Monitoring error:', e); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// KEUANGAN
+// ═══════════════════════════════════════════════════════════
+async function loadKeuangan() {
+  try {
+    const today = Utils.todayISO();
+    const { data: pendapatan } = await supabase.from('keuangan').select('jumlah').eq('jenis','pendapatan').gte('created_at', today).lte('created_at', today + 'T23:59:59');
+    const { data: pengeluaran } = await supabase.from('keuangan').select('jumlah').eq('jenis','pengeluaran').gte('created_at', today).lte('created_at', today + 'T23:59:59');
+    const p = (pendapatan || []).reduce((s,i)=>s+(i.jumlah||0),0);
+    const g = (pengeluaran || []).reduce((s,i)=>s+(i.jumlah||0),0);
+    document.getElementById('keu-pendapatan').textContent = Utils.formatRupiah(p);
+    document.getElementById('keu-pengeluaran').textContent = Utils.formatRupiah(g);
+    document.getElementById('keu-laba').textContent = Utils.formatRupiah(p - g);
+    loadKeuanganRiwayat();
+  } catch (e) { console.error(e); }
+}
+
+async function loadKeuanganRiwayat(filter='semua') {
+  try {
+    let query = supabase.from('keuangan').select('*').order('created_at', { ascending: false }).limit(50);
+    if (filter !== 'semua') query = query.eq('jenis', filter);
+    const { data } = await query;
+    const list = document.getElementById('keu-riwayat');
+    if (!data || !data.length) { list.innerHTML = '<div class="empty-state">Belum ada data</div>'; return; }
+    list.innerHTML = data.map(k => {
+      const color = k.jenis === 'pendapatan' ? 'success' : k.jenis === 'modal' ? 'accent' : 'danger';
+      return `<div class="list-item" style="cursor:default;">
+        <div class="info"><div class="name">${k.sub_jenis || k.jenis}</div><div class="meta">${k.keterangan || '-'} · ${Utils.formatDateTime(k.created_at)}</div></div>
+        <span style="font-size:14px;font-weight:700;color:var(--${color});">${k.jenis==='pengeluaran'?'-':''}${Utils.formatRupiah(k.jumlah)}</span>
+      </div>`;
+    }).join('');
+  } catch (e) { console.error(e); }
+}
+
+function openModalTambahModal() {
+  openModal('Tambah Modal', `
+    <div class="input-group"><label>Jumlah Modal (Rp)</label><input type="number" id="mod-jumlah" class="input" placeholder="0"></div>
+    <div class="input-group"><label>Keterangan</label><input type="text" id="mod-ket" class="input" placeholder="Opsional"></div>
+    <button class="btn btn-primary" onclick="submitKeuanganManual('modal','tambah_modal')">Simpan</button>
+  `);
+}
+function openModalCatatPengeluaran() {
+  openModal('Catat Pengeluaran', `
+    <div class="input-group"><label>Jumlah (Rp)</label><input type="number" id="mod-jumlah" class="input" placeholder="0"></div>
+    <div class="input-group"><label>Kategori</label><select id="mod-kategori" class="input">${masterKategori.map(k=>`<option value="${k.id}">${k.nama}</option>`).join('')}</select></div>
+    <div class="input-group"><label>Keterangan (wajib)</label><input type="text" id="mod-ket" class="input" placeholder="Minimal 10 karakter"></div>
+    <button class="btn btn-primary" onclick="submitKeuanganManual('pengeluaran','manual_operasional')">Simpan</button>
+  `);
+}
+function openModalCatatPemasukan() {
+  openModal('Catat Pemasukan Manual', `
+    <div class="input-group"><label>Jumlah (Rp)</label><input type="number" id="mod-jumlah" class="input" placeholder="0"></div>
+    <div class="input-group"><label>Keterangan (wajib)</label><input type="text" id="mod-ket" class="input" placeholder="Minimal 10 karakter"></div>
+    <button class="btn btn-primary" onclick="submitKeuanganManual('pendapatan','manual_pemasukan')">Simpan</button>
+  `);
+}
+async function submitKeuanganManual(jenis, subJenis) {
+  const jumlah = parseInt(document.getElementById('mod-jumlah').value) || 0;
+  const keterangan = document.getElementById('mod-ket').value.trim();
+  const kategoriId = document.getElementById('mod-kategori')?.value || null;
+  if (jumlah <= 0) { showToast('Jumlah wajib > 0', 'error'); return; }
+  if ((jenis === 'pengeluaran' || jenis === 'pendapatan') && keterangan.length < 10) { showToast('Keterangan minimal 10 karakter', 'error'); return; }
+  try {
+    await supabase.from('keuangan').insert({ jenis, sub_jenis: subJenis, jumlah, keterangan, kategori_id: kategoriId, created_at: Utils.nowISO() });
+    closeModal();
+    showToast('Transaksi tersimpan', 'success');
+    loadKeuangan();
+  } catch (e) { showToast('Gagal menyimpan', 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// GUDANG
+// ═══════════════════════════════════════════════════════════
+async function loadGudang() {
+  try {
+    const { data } = await supabase.from('stok_gerai').select('*, logistik(*)').order('logistik_id');
+    const list = document.getElementById('gudang-stok-list');
+    if (!data || !data.length) { list.innerHTML = '<div class="empty-state">Belum ada data stok</div>'; return; }
+    list.innerHTML = data.map(s => {
+      const l = s.logistik || {};
+      const isKritis = s.jumlah_tersedia <= (l.threshold_min || 10);
+      return `<div class="list-item" style="cursor:default;">
+        <div class="info"><div class="name">${l.nama || '-'}</div><div class="meta">Terpakai: ${s.jumlah_terpakai || 0} ${l.satuan || 'pcs'}</div></div>
+        <span style="font-size:14px;font-weight:700;color:${isKritis?'var(--danger)':'var(--success)'}">${s.jumlah_tersedia} ${l.satuan || 'pcs'}</span>
+      </div>`;
+    }).join('');
+    const kritis = data.filter(s => s.jumlah_tersedia <= (s.logistik?.threshold_min || 10));
+    const banner = document.getElementById('stok-alert-banner');
+    if (kritis.length) { banner.innerHTML = '⚠️ Stok menipis: ' + kritis.map(s=>s.logistik?.nama).join(', '); banner.classList.add('show'); }
+    else banner.classList.remove('show');
+  } catch (e) { console.error(e); }
+}
+
+function openModalTambahStok() {
+  openModal('Tambah Stok', `
+    <div class="input-group"><label>Item Logistik</label><select id="stok-logistik-id" class="input">${masterLogistik.map(l=>`<option value="${l.id}">${l.nama}</option>`).join('')}</select></div>
+    <div class="input-group"><label>Jumlah Tambah</label><input type="number" id="stok-jumlah" class="input" placeholder="0" min="1"></div>
+    <div class="input-group"><label>Alasan</label><input type="text" id="stok-alasan" class="input" placeholder="Restock / Koreksi"></div>
+    <button class="btn btn-primary" onclick="submitTambahStok()">Simpan</button>
+  `);
+}
+async function submitTambahStok() {
+  const logistikId = document.getElementById('stok-logistik-id').value;
+  const jumlah = parseInt(document.getElementById('stok-jumlah').value) || 0;
+  const alasan = document.getElementById('stok-alasan').value.trim();
+  if (jumlah <= 0) { showToast('Jumlah wajib > 0', 'error'); return; }
+  try {
+    const { data: existing } = await supabase.from('stok_gerai').select('*').eq('logistik_id', logistikId).single();
+    if (existing) {
+      await supabase.from('stok_gerai').update({ jumlah_tersedia: existing.jumlah_tersedia + jumlah, updated_at: Utils.nowISO() }).eq('id', existing.id);
+    } else {
+      await supabase.from('stok_gerai').insert({ logistik_id: logistikId, jumlah_tersedia: jumlah, jumlah_terpakai: 0 });
+    }
+    closeModal(); showToast('Stok berhasil ditambah', 'success'); loadGudang();
+  } catch (e) { showToast('Gagal menambah stok', 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// MENU CRUD
+// ═══════════════════════════════════════════════════════════
+async function loadMenuList() {
+  try {
+    const { data } = await supabase.from('menu').select('*, menu_logistik_mapping(*, logistik(*))').order('nama');
+    masterMenu = data || [];
+    const list = document.getElementById('menu-list');
+    if (!data || !data.length) { list.innerHTML = '<div class="empty-state">Belum ada menu</div>'; return; }
+    list.innerHTML = data.map(m => `
+      <div class="list-item" onclick="openModalEditMenu('${m.id}')">
+        <div class="info"><div class="name">${m.nama}</div><div class="meta">${m.kategori} · ${Utils.formatRupiah(m.harga)} · ${m.is_active?'Aktif':'Nonaktif'}</div></div>
+        <span class="badge ${m.is_active?'badge-success':'badge-idle'}">${m.is_active?'AKTIF':'NONAKTIF'}</span>
+      </div>
+    `).join('');
+  } catch (e) { console.error(e); }
+}
+
+function openModalTambahMenu() {
+  openModal('Tambah Menu', `
+    <div class="input-group"><label>Nama Menu</label><input type="text" id="menu-nama" class="input"></div>
+    <div class="input-group"><label>Kategori</label>
+      <select id="menu-kategori" class="input"><option value="makanan">Makanan</option><option value="cemilan">Cemilan</option><option value="minuman">Minuman</option><option value="indomie">Indomie</option></select>
+    </div>
+    <div class="input-group"><label>Harga (Rp)</label><input type="number" id="menu-harga" class="input" placeholder="0"></div>
+    <div class="input-group"><label>Deskripsi</label><textarea id="menu-deskripsi" class="input"></textarea></div>
+    <div class="input-group"><label>Mapping Logistik (per porsi)</label>
+      <div id="menu-mapping-list">${masterLogistik.map(l=>`<div class="flex-between" style="margin-bottom:6px;"><span>${l.nama}</span><input type="number" class="input menu-map-qty" data-id="${l.id}" placeholder="0" style="width:80px;margin-bottom:0;"></div>`).join('')}</div>
+    </div>
+    <button class="btn btn-primary" onclick="submitMenu()">Simpan</button>
+  `);
+}
+
+function openModalEditMenu(id) {
+  const m = masterMenu.find(x=>x.id===id); if(!m)return;
+  openModal('Edit Menu', `
+    <div class="input-group"><label>Nama Menu</label><input type="text" id="menu-nama" class="input" value="${m.nama.replace(/"/g,'&quot;')}"></div>
+    <div class="input-group"><label>Kategori</label>
+      <select id="menu-kategori" class="input"><option value="makanan" ${m.kategori==='makanan'?'selected':''}>Makanan</option><option value="cemilan" ${m.kategori==='cemilan'?'selected':''}>Cemilan</option><option value="minuman" ${m.kategori==='minuman'?'selected':''}>Minuman</option><option value="indomie" ${m.kategori==='indomie'?'selected':''}>Indomie</option></select>
+    </div>
+    <div class="input-group"><label>Harga (Rp)</label><input type="number" id="menu-harga" class="input" value="${m.harga}"></div>
+    <div class="input-group"><label>Deskripsi</label><textarea id="menu-deskripsi" class="input">${m.deskripsi||''}</textarea></div>
+    <div class="input-group"><label>Status</label>
+      <select id="menu-active" class="input"><option value="true" ${m.is_active?'selected':''}>Aktif</option><option value="false" ${!m.is_active?'selected':''}>Nonaktif</option></select>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn btn-primary" onclick="submitMenu('${m.id}')">Update</button>
+      <button class="btn btn-danger" onclick="hapusMenu('${m.id}')">Nonaktifkan</button>
+    </div>
+  `);
+}
+
+async function submitMenu(editId=null) {
+  const nama = document.getElementById('menu-nama').value.trim();
+  const kategori = document.getElementById('menu-kategori').value;
+  const harga = parseInt(document.getElementById('menu-harga').value) || 0;
+  const deskripsi = document.getElementById('menu-deskripsi').value.trim();
+  const isActive = document.getElementById('menu-active')?.value === 'true';
+  if (!nama || harga < 0) { showToast('Nama dan harga wajib diisi', 'error'); return; }
+  try {
+    let menuId = editId;
+    if (editId) {
+      await supabase.from('menu').update({ nama, kategori, harga, deskripsi, is_active: isActive }).eq('id', editId);
+    } else {
+      const { data } = await supabase.from('menu').insert({ nama, kategori, harga, deskripsi }).select().single();
+      menuId = data.id;
+      const maps = [];
+      document.querySelectorAll('.menu-map-qty').forEach(el => {
+        const qty = parseFloat(el.value) || 0;
+        if (qty > 0) maps.push({ menu_id: menuId, logistik_id: el.dataset.id, jumlah_per_porsi: qty });
+      });
+      if (maps.length) await supabase.from('menu_logistik_mapping').insert(maps);
+    }
+    closeModal(); showToast('Menu tersimpan', 'success'); loadMenuList();
+  } catch (e) { showToast('Gagal menyimpan menu', 'error'); }
+}
+async function hapusMenu(id) {
+  if (!confirm('Nonaktifkan menu ini?')) return;
+  await supabase.from('menu').update({ is_active: false }).eq('id', id);
+  closeModal(); showToast('Menu dinonaktifkan', 'success'); loadMenuList();
+}
+
+// ═══════════════════════════════════════════════════════════
+// LOGISTIK CRUD
+// ═══════════════════════════════════════════════════════════
+async function loadLogistikList() {
+  try {
+    const { data } = await supabase.from('logistik').select('*').order('nama');
+    masterLogistik = data || [];
+    const list = document.getElementById('logistik-list');
+    if (!data || !data.length) { list.innerHTML = '<div class="empty-state">Belum ada logistik</div>'; return; }
+    list.innerHTML = data.map(l => `
+      <div class="list-item">
+        <div class="info"><div class="name">${l.nama}</div><div class="meta">Satuan: ${l.satuan} · Threshold: ${l.threshold_min}</div></div>
+        <span style="font-size:13px;color:var(--text-muted);">${l.is_active?'':'NONAKTIF'}</span>
+      </div>
+    `).join('');
+  } catch (e) { console.error(e); }
+}
+function openModalTambahLogistik() {
+  openModal('Tambah Logistik', `
+    <div class="input-group"><label>Nama Item</label><input type="text" id="log-nama" class="input"></div>
+    <div class="input-group"><label>Satuan</label><input type="text" id="log-satuan" class="input" placeholder="pcs / gram / ml"></div>
+    <div class="input-group"><label>Threshold Minimum</label><input type="number" id="log-threshold" class="input" value="10"></div>
+    <button class="btn btn-primary" onclick="submitLogistik()">Simpan</button>
+  `);
+}
+async function submitLogistik() {
+  const nama = document.getElementById('log-nama').value.trim();
+  const satuan = document.getElementById('log-satuan').value.trim();
+  const threshold = parseInt(document.getElementById('log-threshold').value) || 10;
+  if (!nama || !satuan) { showToast('Nama dan satuan wajib diisi', 'error'); return; }
+  try {
+    await supabase.from('logistik').insert({ nama, satuan, threshold_min: threshold });
+    closeModal(); showToast('Logistik tersimpan', 'success'); loadLogistikList();
+  } catch (e) { showToast('Gagal menyimpan', 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// AUDIT TUTUP
+// ═══════════════════════════════════════════════════════════
+async function loadAuditPage() {
+  try {
+    const today = Utils.todayISO();
+    const { data: aktif } = await supabase.from('transaksi').select('*').in('status', ['pending','diterima','diproses']).gte('created_at', today).lte('created_at', today+'T23:59:59');
+    const warning = document.getElementById('audit-pesanan-aktif-warning');
+    if (aktif && aktif.length) {
+      warning.style.display = 'block';
+      document.getElementById('audit-pesanan-aktif-list').innerHTML = aktif.map(t=>`<div style="font-size:12px;margin-bottom:4px;">• ${t.pelanggan_nama||'Kasir'} · ${t.status}</div>`).join('');
+    } else { warning.style.display = 'none'; }
+    const { data: keuPendapatan } = await supabase.from('keuangan').select('jumlah').eq('jenis','pendapatan').gte('created_at', today).lte('created_at', today + 'T23:59:59');
+    const pendapatan = (keuPendapatan || []).reduce((s,i)=>s+(i.jumlah||0),0);
+    document.getElementById('audit-pendapatan').value = Utils.formatRupiah(pendapatan);
+    hitungSelisihAudit();
+    const { data: stok } = await supabase.from('stok_gerai').select('*, logistik(*)');
+    document.getElementById('audit-logistik-list').innerHTML = (stok || []).map(s => {
+      const l = s.logistik || {};
+      return `<div class="input-group" style="margin-bottom:8px;">
+        <label>${l.nama} (Awal: ${s.jumlah_tersedia + s.jumlah_terpakai} ${l.satuan}, Terpakai: ${s.jumlah_terpakai} ${l.satuan})</label>
+        <input type="number" class="input audit-log-sisa" data-log-id="${s.logistik_id}" placeholder="Sisa fisik ${l.satuan}">
+      </div>`;
+    }).join('') || '<div class="empty-state">Tidak ada data logistik</div>';
+  } catch (e) { console.error(e); }
+}
+
+function hitungSelisihAudit() {
+  const tunai = parseInt(document.getElementById('audit-tunai').value) || 0;
+  const qris = parseInt(document.getElementById('audit-qris').value) || 0;
+  const pendapatan = Utils.parseRupiah(document.getElementById('audit-pendapatan').value);
+  const selisih = (tunai + qris) - pendapatan;
+  document.getElementById('audit-selisih').value = (selisih >= 0 ? 'Rp ' : '-Rp ') + Utils.formatRupiah(Math.abs(selisih)).replace('Rp','');
+}
+
+async function auditBatalkanSemua() {
+  if (!confirm('Batalkan SEMUA pesanan aktif? Stok akan dikembalikan.')) return;
+  try {
+    const today = Utils.todayISO();
+    const { data: aktif } = await supabase.from('transaksi').select('*').in('status', ['pending','diterima','diproses']).gte('created_at', today).lte('created_at', today+'T23:59:59');
+    for (const t of (aktif || [])) {
+      await supabase.from('transaksi').update({ status: 'void', updated_at: Utils.nowISO() }).eq('id', t.id);
+    }
+    showToast('Semua pesanan dibatalkan', 'success');
+    loadAuditPage();
+  } catch (e) { showToast('Gagal membatalkan', 'error'); }
+}
+
+function auditSelesaikanManual() {
+  showToast('Silakan selesaikan pesanan di halaman Kasir terlebih dahulu', 'info');
+  navigateTo('kasir');
+}
+
+async function submitAuditTutup() {
+  const tunai = parseInt(document.getElementById('audit-tunai').value) || 0;
+  const qris = parseInt(document.getElementById('audit-qris').value) || 0;
+  const selisih = Utils.parseRupiah(document.getElementById('audit-selisih').value);
+  const alasan = document.getElementById('audit-alasan').value.trim();
+  if (selisih !== 0 && !alasan) { showToast('Alasan selisih wajib diisi', 'error'); return; }
+  try {
+    const today = Utils.todayISO();
+    const { data: aktif } = await supabase.from('transaksi').select('id').in('status', ['pending','diterima','diproses']).gte('created_at', today).lte('created_at', today+'T23:59:59');
+    if (aktif && aktif.length) { showToast('Masih ada pesanan aktif', 'error'); return; }
+    const pendapatan = Utils.parseRupiah(document.getElementById('audit-pendapatan').value);
+    await supabase.from('audit_tutup').insert({ uang_tunai_fisik: tunai, qris_dikonfirmasi: qris, total_pendapatan: pendapatan, selisih, alasan_selisih: alasan });
+    await supabase.from('monitoring').update({ omzet:0, cup_terjual:0, jumlah_pesanan:0, tunai_total:0, qris_total:0 }).eq('tanggal', today);
+    const { data: gerai } = await supabase.from('gerai').select('id').single();
+    await supabase.from('gerai').update({ status: 'tutup' }).eq('id', gerai.id);
+    showToast('Audit selesai. Gerai ditutup.', 'success');
+    navigateTo('dashboard');
+  } catch (e) { showToast('Gagal submit audit', 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// LAPORAN
+// ═══════════════════════════════════════════════════════════
+let laporanFilter = 'hari_ini';
+async function loadLaporan(filter) {
+  laporanFilter = filter;
+  if (filter === 'custom') { document.getElementById('laporan-custom-range').style.display = 'block'; return; }
+  document.getElementById('laporan-custom-range').style.display = 'none';
+  let from, to;
+  const today = new Date();
+  if (filter === 'hari_ini') { from = to = Utils.todayISO(); }
+  else if (filter === 'kemarin') { const k = new Date(today); k.setDate(k.getDate()-1); from = to = k.toISOString().slice(0,10); }
+  else if (filter === 'minggu_ini') { const s = new Date(today); s.setDate(s.getDate()-s.getDay()+1); from = s.toISOString().slice(0,10); to = Utils.todayISO(); }
+  else if (filter === 'bulan_ini') { from = Utils.todayISO().slice(0,8)+'01'; to = Utils.todayISO(); }
+  await renderLaporan(from, to);
+}
+async function loadLaporanCustom() {
+  const from = document.getElementById('laporan-from').value;
+  const to = document.getElementById('laporan-to').value;
+  if (!from || !to) { showToast('Pilih rentang tanggal', 'error'); return; }
+  await renderLaporan(from, to);
+}
+async function renderLaporan(from, to) {
+  try {
+    const { data: pendapatan } = await supabase.from('keuangan').select('jumlah, sub_jenis').eq('jenis','pendapatan').gte('created_at', from).lte('created_at', to+'T23:59:59');
+    const { data: pengeluaran } = await supabase.from('keuangan').select('jumlah').eq('jenis','pengeluaran').gte('created_at', from).lte('created_at', to+'T23:59:59');
+    const { data: transaksi } = await supabase.from('transaksi').select('*').eq('status','selesai').gte('created_at', from).lte('created_at', to+'T23:59:59');
+    const p = (pendapatan || []).reduce((s,i)=>s+(i.jumlah||0),0);
+    const g = (pengeluaran || []).reduce((s,i)=>s+(i.jumlah||0),0);
+    const tunai = (pendapatan || []).filter(i=>i.sub_jenis==='penjualan_tunai').reduce((s,i)=>s+(i.jumlah||0),0);
+    const qris = (pendapatan || []).filter(i=>i.sub_jenis==='penjualan_qris').reduce((s,i)=>s+(i.jumlah||0),0);
+    document.getElementById('lap-pendapatan').textContent = Utils.formatRupiah(p);
+    document.getElementById('lap-pengeluaran').textContent = Utils.formatRupiah(g);
+    document.getElementById('lap-laba').textContent = Utils.formatRupiah(p - g);
+    document.getElementById('lap-transaksi').textContent = (transaksi || []).length;
+    const list = document.getElementById('laporan-list');
+    list.innerHTML = (transaksi || []).map(t => `
+      <div class="list-item" style="cursor:default;">
+        <div class="info"><div class="name">${t.pelanggan_nama || 'Kasir'}</div><div class="meta">${Utils.formatDateTime(t.created_at)} · ${t.metode.toUpperCase()}</div></div>
+        <span style="font-size:13px;font-weight:700;color:var(--accent);">${t.status==='selesai'?'✓':'○'}</span>
+      </div>
+    `).join('') || '<div class="empty-state">Tidak ada transaksi</div>';
+  } catch (e) { console.error(e); }
+}
+function exportLaporan(format) {
+  if (format === 'print') { window.print(); }
+  else { showToast('Export ' + format + ' akan diimplementasikan', 'info'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// ARSIP
+// ═══════════════════════════════════════════════════════════
+async function loadArsipPesanan() {
+  const tgl = document.getElementById('arsip-tanggal').value;
+  if (!tgl) return;
+  try {
+    const { data } = await supabase.from('arsip_pesanan').select('*').eq('tanggal', tgl).order('created_at', { ascending: false });
+    const el = document.getElementById('arsip-pesanan-content');
+    if (!data || !data.length) { el.innerHTML = '<div class="empty-state">Tidak ada arsip</div>'; return; }
+    el.innerHTML = data.map(a => `<div class="card"><div class="card-header"><span class="card-title">${a.tanggal}</span></div><pre style="font-size:11px;overflow-x:auto;">${JSON.stringify(a.data_json, null, 2)}</pre></div>`).join('');
+  } catch (e) { console.error(e); }
+}
+async function loadArsipLogistik() {
+  const tgl = document.getElementById('arsip-log-tanggal').value;
+  if (!tgl) return;
+  try {
+    const { data } = await supabase.from('arsip_logistik').select('*').eq('tanggal', tgl).order('created_at', { ascending: false });
+    const el = document.getElementById('arsip-logistik-content');
+    if (!data || !data.length) { el.innerHTML = '<div class="empty-state">Tidak ada arsip</div>'; return; }
+    el.innerHTML = data.map(a => `<div class="card"><div class="card-header"><span class="card-title">${a.tanggal}</span></div><pre style="font-size:11px;overflow-x:auto;">${JSON.stringify(a.data_json, null, 2)}</pre></div>`).join('');
+  } catch (e) { console.error(e); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// HISTORY
+// ═══════════════════════════════════════════════════════════
+async function loadHistory() {
+  try {
+    const { data } = await supabase.from('transaksi').select('*, transaksi_item(menu_id, jumlah)').eq('status','selesai').order('created_at', { ascending: false }).limit(50);
+    const list = document.getElementById('history-list');
+    if (!data || !data.length) { list.innerHTML = '<div class="empty-state">Belum ada history</div>'; return; }
+    list.innerHTML = data.map(t => {
+      const cup = (t.transaksi_item || []).reduce((s,i)=>s+i.jumlah,0);
+      return `<div class="list-item" style="cursor:default;">
+        <div class="info"><div class="name">${cup} cup · ${t.metode.toUpperCase()}</div><div class="meta">${Utils.formatDateTime(t.created_at)}</div></div>
+      </div>`;
+    }).join('');
+  } catch (e) { console.error(e); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// CHAT
+// ═══════════════════════════════════════════════════════════
+async function loadChat() {
+  if (!currentUser) return;
+  try {
+    const { data } = await supabase.from('message').select('*').or(`dari.eq.${currentUser.id},kepada.eq.${currentUser.id}`).order('created_at', { ascending: true }).limit(100);
+    const box = document.getElementById('chat-messages');
+    box.innerHTML = (data || []).map(m => {
+      const isMe = m.dari === currentUser.id;
+      return `<div style="margin-bottom:8px;text-align:${isMe?'right':'left'};"><span style="display:inline-block;padding:8px 12px;border-radius:12px;background:${isMe?'var(--accent)':'var(--card)'};color:${isMe?'var(--header)':'var(--text)'};font-size:13px;max-width:80%;">${m.isi}</span><div style="font-size:10px;color:var(--text-muted);margin-top:2px;">${Utils.formatTime(m.created_at)}</div></div>`;
+    }).join('');
+    box.scrollTop = box.scrollHeight;
+  } catch (e) { console.error(e); }
+}
+async function sendChatMessage() {
+  const input = document.getElementById('chat-input');
+  const isi = input.value.trim();
+  if (!isi) return;
+  try {
+    const partnerRole = currentUser.role === 'owner' ? 'kasir' : 'owner';
+    const { data: partner } = await supabase.from('users').select('id').eq('role', partnerRole).limit(1).single();
+    await supabase.from('message').insert({ dari: currentUser.id, kepada: partner?.id || currentUser.id, isi });
+    input.value = '';
+    loadChat();
+  } catch (e) { showToast('Gagal mengirim pesan', 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// ADMINISTRASI & SETUP
+// ═══════════════════════════════════════════════════════════
+function loadAdministrasi() {
+  // Halaman administrasi sudah render statis, tidak perlu load data
+}
+async function loadSetup() {
+  try {
+    const { data: gerai } = await supabase.from('gerai').select('*').single();
+    if (gerai) {
+      document.getElementById('setup-nama').value = gerai.nama || 'KEDAI RAFFA';
+      document.getElementById('setup-alamat').value = gerai.alamat || '';
+      document.getElementById('setup-jam').value = gerai.jam_operasional || '';
+    }
+    const { data: kasir } = await supabase.from('users').select('*').eq('role','kasir').order('nama');
+    document.getElementById('setup-kasir-list').innerHTML = (kasir || []).map(k => `
+      <div class="list-item" style="cursor:default;"><div class="info"><div class="name">${k.nama}</div></div></div>
+    `).join('') || '<div class="empty-state">Belum ada kasir</div>';
+  } catch (e) { console.error(e); }
+}
+async function saveSetup() {
+  const nama = document.getElementById('setup-nama').value.trim();
+  const alamat = document.getElementById('setup-alamat').value.trim();
+  const jam = document.getElementById('setup-jam').value.trim();
+  try {
+    const { data: existing } = await supabase.from('gerai').select('id').single();
+    if (existing) {
+      await supabase.from('gerai').update({ nama, alamat, jam_operasional: jam }).eq('id', existing.id);
+    } else {
+      await supabase.from('gerai').insert({ nama, alamat, jam_operasional: jam });
+    }
+    showToast('Setup tersimpan', 'success');
+  } catch (e) { showToast('Gagal menyimpan setup', 'error'); }
+}
+async function tambahKasir() {
+  const nama = document.getElementById('setup-kasir-nama').value.trim();
+  const kode = document.getElementById('setup-kasir-kode').value.trim();
+  if (!nama || !kode || kode.length < 4) { showToast('Nama wajib & kode min 4 digit', 'error'); return; }
+  try {
+    await supabase.from('users').insert({ nama, role: 'kasir', kode_akses: kode });
+    document.getElementById('setup-kasir-nama').value = '';
+    document.getElementById('setup-kasir-kode').value = '';
+    showToast('Kasir ditambahkan', 'success');
+    loadSetup();
+  } catch (e) { showToast('Gagal menambah kasir', 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// QR ORDERING (PUBLIC)
+// ═══════════════════════════════════════════════════════════
+async function initQROrdering() {
+  try {
+    const { data: gerai } = await supabase.from('gerai').select('*').single();
+    const status = gerai?.status || 'tutup';
+    document.getElementById('qr-gerai-status').textContent = status === 'buka' ? 'Gerai BUKA' : 'Gerai TUTUP';
+    const badge = document.getElementById('qr-status-badge');
+    if (status === 'buka') { badge.style.display = 'inline-block'; badge.textContent = '🟢 BUKA'; }
+    else { badge.style.display = 'inline-block'; badge.textContent = '🔴 TUTUP'; badge.className = 'qr-status-badge badge-danger'; }
+    if (status !== 'buka') {
+      document.getElementById('qr-order-form').innerHTML = '<div class="card"><div style="text-align:center;padding:40px;color:var(--text-muted);"><div style="font-size:48px;margin-bottom:16px;">🔒</div><div style="font-size:16px;font-weight:700;">Gerai Sedang Tutup</div><div style="font-size:13px;margin-top:8px;">Silakan kembali saat gerai buka</div></div></div>';
+      return;
+    }
+    qrCart = Store.getQRCart() || {};
+    qrAmbil = Store.getQRAmbil() || 'ambil_sendiri';
+    setQRAmbil(qrAmbil);
+    const { data: menu } = await supabase.from('menu').select('*').eq('is_active', true).order('nama');
+    masterMenu = menu || [];
+    renderQRMenu();
+    updateQRTotal();
+  } catch (e) { console.error(e); }
+}
+function renderQRMenu() {
+  const grid = document.getElementById('qr-menu-grid');
+  grid.innerHTML = (masterMenu || []).map(m => `
+    <div class="menu-card" onclick="addToQRCart('${m.id}', '${m.nama.replace(/'/g,"\'")}', ${m.harga})">
+      <div class="menu-name">${m.nama}</div>
+      <div class="menu-price">${Utils.formatRupiah(m.harga)}</div>
+      <div class="menu-qty">
+        <button class="qty-btn" onclick="event.stopPropagation();changeQRQty('${m.id}', -1)">−</button>
+        <span class="qty-value" id="qr-qty-${m.id}">${qrCart[m.id]?.jumlah || 0}</span>
+        <button class="qty-btn" onclick="event.stopPropagation();changeQRQty('${m.id}', 1)">+</button>
+      </div>
+    </div>
+  `).join('');
+}
+function setQRAmbil(mode) {
+  qrAmbil = mode;
+  Store.setQRAmbil(mode);
+  document.getElementById('qr-ambil-sendiri').className = mode === 'ambil_sendiri' ? 'btn btn-primary' : 'btn btn-outline';
+  document.getElementById('qr-diantar').className = mode === 'diantar' ? 'btn btn-primary' : 'btn btn-outline';
+}
+function addToQRCart(menuId, nama, harga) {
+  if (!qrCart[menuId]) qrCart[menuId] = { menu_id: menuId, nama, harga, jumlah: 0 };
+  qrCart[menuId].jumlah++;
+  const el = document.getElementById('qr-qty-' + menuId);
+  if (el) el.textContent = qrCart[menuId].jumlah;
+  Store.setQRCart(qrCart);
+  updateQRTotal();
+}
+function changeQRQty(menuId, delta) {
+  if (!qrCart[menuId]) return;
+  qrCart[menuId].jumlah += delta;
+  if (qrCart[menuId].jumlah <= 0) delete qrCart[menuId];
+  const el = document.getElementById('qr-qty-' + menuId);
+  if (el) el.textContent = qrCart[menuId]?.jumlah || 0;
+  Store.setQRCart(qrCart);
+  updateQRTotal();
+}
+function updateQRTotal() {
+  const items = Object.values(qrCart);
+  const total = items.reduce((s, i) => s + (i.harga * i.jumlah), 0);
+  document.getElementById('qr-total').textContent = Utils.formatRupiah(total);
+}
+async function submitQROrder() {
+  const nama = document.getElementById('qr-nama').value.trim();
+  const wa = document.getElementById('qr-wa').value.trim();
+  const items = Object.values(qrCart);
+  if (!nama || nama.length < 2) { showToast('Nama wajib diisi (min 2 karakter)', 'error'); return; }
+  if (!items.length) { showToast('Pilih menu terlebih dahulu', 'error'); return; }
+  try {
+    const total = items.reduce((s,i)=>s+(i.harga*i.jumlah),0);
+    const totalCup = items.reduce((s,i)=>s+i.jumlah,0);
+    const { data: trx, error } = await supabase.from('transaksi').insert({
+      pelanggan_nama: nama,
+      pelanggan_wa: wa || null,
+      metode: 'tunai',
+      status: 'pending',
+      sumber: 'qr_ordering',
+      total_cup: totalCup,
+      created_at: Utils.nowISO(),
+      updated_at: Utils.nowISO()
+    }).select().single();
+    if (error) throw error;
+    const itemInserts = items.map(it => ({
+      transaksi_id: trx.id,
+      menu_id: it.menu_id,
+      jumlah: it.jumlah,
+      harga_satuan: it.harga,
+      catatan: ''
+    }));
+    await supabase.from('transaksi_item').insert(itemInserts);
+    qrCart = {}; Store.setQRCart({});
+    document.getElementById('qr-order-form').style.display = 'none';
+    document.getElementById('qr-order-tracking').style.display = 'block';
+    document.getElementById('qr-kode').textContent = 'TRX-' + trx.id.slice(0,8).toUpperCase();
+    initQRRealtime(trx.id);
+    showToast('Pesanan berhasil dibuat!', 'success');
+  } catch (e) { console.error(e); showToast('Gagal membuat pesanan', 'error'); }
+}
+function initQRRealtime(trxId) {
+  const channel = supabase.channel('status_pesanan_' + trxId)
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'transaksi', filter: 'id=eq.' + trxId }, (payload) => {
+      const s = payload.new.status;
+      if (s === 'diterima') document.getElementById('dot-diterima').classList.add('active');
+      if (s === 'diproses') { document.getElementById('dot-diterima').classList.add('active'); document.getElementById('dot-diproses').classList.add('active'); }
+      if (s === 'selesai') { document.getElementById('dot-diterima').classList.add('active'); document.getElementById('dot-diproses').classList.add('active'); document.getElementById('dot-selesai').classList.add('active'); showToast('Pesanan selesai!', 'success'); }
+    }).subscribe();
+  subsRealtime.push(channel);
+}
+
+// ═══════════════════════════════════════════════════════════
+// PRINTER (Bluetooth ESC/POS)
+// ═══════════════════════════════════════════════════════════
+async function pairPrinter() {
+  try {
+    if (!navigator.bluetooth) { showToast('Bluetooth tidak didukung di perangkat ini', 'error'); return; }
+    const device = await navigator.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb', '49535343-fe7d-4ae5-8fa9-9fafd205e455'] });
+    printerDevice = device;
+    const server = await device.gatt.connect();
+    printerServer = server;
+    updatePrinterUI();
+    showToast('Printer terhubung', 'success');
+  } catch (e) { showToast('Gagal menghubungkan printer', 'error'); }
+}
+function updatePrinterUI() {
+  const connected = !!(printerDevice && printerDevice.gatt && printerDevice.gatt.connected);
+  document.getElementById('printer-badge').textContent = connected ? 'ONLINE' : 'OFFLINE';
+  document.getElementById('printer-badge').className = 'badge ' + (connected ? 'badge-success' : 'badge-idle');
+  document.getElementById('printer-name').textContent = connected ? (printerDevice.name || 'Printer') : 'Belum terhubung';
+  document.getElementById('btn-pair').style.display = connected ? 'none' : 'block';
+  document.getElementById('btn-test-print').style.display = connected ? 'block' : 'none';
+  document.getElementById('btn-forget').style.display = connected ? 'block' : 'none';
+}
+function forgetPrinter() {
+  if (printerDevice && printerDevice.gatt.connected) printerDevice.gatt.disconnect();
+  printerDevice = null; printerServer = null;
+  updatePrinterUI();
+  showToast('Printer dilupakan', 'info');
+}
+async function testPrint() {
+  if (!printerServer) return;
+  try {
+    const service = await printerServer.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb').catch(()=>printerServer.getPrimaryService('49535343-fe7d-4ae5-8fa9-9fafd205e455'));
+    const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb').catch(()=>service.getCharacteristic('49535343-8841-43f4-a8d4-ecbe34729bb3'));
+    const encoder = new TextEncoder();
+    const text = "\x1B\x40\x1B\x61\x01KEDAI RAFFA\nJus & Cemilan Segar\n================\nTest Print OK\n================\n\x1D\x56\x00";
+    await characteristic.writeValue(encoder.encode(text));
+    showToast('Test print berhasil', 'success');
+  } catch (e) { showToast('Gagal test print', 'error'); }
+}
+async function printNota(trx, items) {
+  if (!printerServer) return;
+  try {
+    const service = await printerServer.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb').catch(()=>printerServer.getPrimaryService('49535343-fe7d-4ae5-8fa9-9fafd205e455'));
+    const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb').catch(()=>service.getCharacteristic('49535343-8841-43f4-a8d4-ecbe34729bb3'));
+    const encoder = new TextEncoder();
+    let text = "\x1B\x40\x1B\x61\x01KEDAI RAFFA\nJus & Cemilan Segar\n================\n";
+    text += `No: ${trx.id.slice(0,8).toUpperCase()}\n`;
+    text += `Tgl: ${Utils.formatDateTime(trx.created_at)}\n`;
+    text += `Kasir: ${currentUser?.nama || 'QR'}\n`;
+    text += "----------------\n";
+    items.forEach(it => { text += `${it.jumlah}x ${it.nama}\n`; });
+    text += "----------------\n";
+    const total = items.reduce((s,i)=>s+(i.harga*i.jumlah),0);
+    text += `TOTAL: ${Utils.formatRupiah(total)}\n`;
+    text += `Metode: ${trx.metode.toUpperCase()}\n`;
+    text += "================\nTerima Kasih!\n\x1D\x56\x00";
+    await characteristic.writeValue(encoder.encode(text));
+  } catch (e) { console.error('Print error:', e); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PUSH NOTIFICATION
+// ═══════════════════════════════════════════════════════════
+async function enablePush() {
+  try {
+    if (!('serviceWorker' in navigator)) { showToast('Service Worker tidak didukung', 'error'); return; }
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(CONFIG.VAPID_PUBLIC_KEY) });
+    // Kirim subscription ke server (Edge Function)
+    await fetch(CONFIG.SUPABASE_URL + '/functions/v1/send-push-notification', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + CONFIG.SUPABASE_ANON_KEY },
+      body: JSON.stringify({ action: 'register', subscription: sub.toJSON() })
+    });
+    isPushEnabled = true;
+    updatePushUI();
+    showToast('Notifikasi aktif', 'success');
+  } catch (e) { showToast('Gagal aktifkan notifikasi', 'error'); }
+}
+function updatePushUI() {
+  document.getElementById('push-badge').textContent = isPushEnabled ? 'AKTIF' : 'NONAKTIF';
+  document.getElementById('push-badge').className = 'badge ' + (isPushEnabled ? 'badge-success' : 'badge-idle');
+  document.getElementById('push-desc').textContent = isPushEnabled ? 'Notifikasi push aktif.' : 'Aktifkan notifikasi push untuk menerima alert pesanan baru.';
+  document.getElementById('btn-push').style.display = isPushEnabled ? 'none' : 'block';
+}
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
+}
+
+// ═══════════════════════════════════════════════════════════
+// BACKUP / RESTORE / RESET
+// ═══════════════════════════════════════════════════════════
+async function exportBackup() {
+  try {
+    const tables = ['users','gerai','menu','logistik','menu_logistik_mapping','kategori_pengeluaran'];
+    const backup = {};
+    for (const t of tables) {
+      const { data } = await supabase.from(t).select('*');
+      backup[t] = data || [];
+    }
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `backup-kedai-raffa-${Utils.todayISO()}.json`; a.click();
+    URL.revokeObjectURL(url);
+    showToast('Backup diunduh', 'success');
+  } catch (e) { showToast('Gagal export backup', 'error'); }
+}
+function importBackup() {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json';
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const text = await file.text();
+    try {
+      const data = JSON.parse(text);
+      showToast('Backup loaded (implementasi restore per tabel perlu konfirmasi)', 'info');
+      console.log('Backup data:', data);
+    } catch { showToast('File tidak valid', 'error'); }
+  };
+  input.click();
+}
+function resetData() {
+  const kode = prompt('Masukkan kode dev untuk reset data:');
+  if (kode !== CONFIG.DEV_RESET_CODE) { showToast('Kode dev salah', 'error'); return; }
+  if (!confirm('Yakin reset SEMUA data? Ini tidak bisa dibatalkan!')) return;
+  showToast('Reset data perlu diimplementasikan manual via SQL', 'warning');
+}
+
+// ═══════════════════════════════════════════════════════════
+// REALTIME SUBSCRIPTIONS
+// ═══════════════════════════════════════════════════════════
+function initRealtime() {
+  if (!currentUser) return;
+  // Channel: pesanan_baru
+  const ch1 = supabase.channel('pesanan_baru')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'transaksi' }, (payload) => {
+      showToast('Pesanan baru masuk!', 'info');
+      pendingNotifCount++;
+      document.getElementById('notif-dot').classList.add('show');
+      if (currentPage === 'dashboard') loadDashboardStats();
+      if (currentPage === 'monitoring') loadMonitoring();
+    }).subscribe();
+  subsRealtime.push(ch1);
+  // Channel: monitoring
+  const ch2 = supabase.channel('monitoring_update')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'monitoring' }, () => {
+      if (currentPage === 'monitoring') loadMonitoring();
+    }).subscribe();
+  subsRealtime.push(ch2);
+}
+function showNotifModal() {
+  pendingNotifCount = 0;
+  document.getElementById('notif-dot').classList.remove('show');
+  openModal('Notifikasi', '<div style="text-align:center;padding:20px;color:var(--text-muted);">Tidak ada notifikasi baru</div>');
+}
+
+// ═══════════════════════════════════════════════════════════
+// CART PANEL
+// ═══════════════════════════════════════════════════════════
+function toggleCart() {
+  document.getElementById('cart-panel').classList.toggle('show');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PWA INSTALL PROMPT
+// ═══════════════════════════════════════════════════════════
+let _pwaPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  _pwaPrompt = e;
+  const wrap = document.getElementById('pwa-install-wrap');
+  if (wrap) wrap.style.display = 'block';
+});
+
+window.addEventListener('appinstalled', () => {
+  _pwaPrompt = null;
+  const wrap = document.getElementById('pwa-install-wrap');
+  const btn  = document.getElementById('btn-pwa-install');
+  const note = document.getElementById('pwa-installed-note');
+  if (btn)  btn.style.display  = 'none';
+  if (note) note.style.display = 'block';
+  if (wrap) wrap.style.display = 'block';
+  setTimeout(() => { if (wrap) wrap.style.display = 'none'; }, 4000);
+});
+
+async function installPWA() {
+  if (!_pwaPrompt) return;
+  const btn = document.getElementById('btn-pwa-install');
+  if (btn) btn.textContent = 'Membuka installer...';
+  await _pwaPrompt.prompt();
+  const { outcome } = await _pwaPrompt.userChoice;
+  _pwaPrompt = null;
+  if (outcome === 'accepted') {
+    if (btn) btn.textContent = '✓ Berhasil diinstall!';
+    setTimeout(() => { const w = document.getElementById('pwa-install-wrap'); if (w) w.style.display = 'none'; }, 3000);
+  } else {
+    if (btn) { btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Install Aplikasi ke HP'; }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// SERVICE WORKER REGISTRATION
+// ═══════════════════════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(err => console.error('SW reg failed:', err));
+}
+</script>
+</body>
+</html>
