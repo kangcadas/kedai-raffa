@@ -1,16 +1,38 @@
-name: Deploy to Cloudflare Pages
+name: 🚀 Auto Deploy to Cloudflare Pages
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
 jobs:
   deploy:
+    name: Deploy commit ${{ github.sha }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Deploy to Cloudflare Pages
+      - name: 📥 Checkout latest commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+
+      - name: 🔍 Show commit info
+        run: |
+          echo "=================================="
+          echo "Deploying commit : ${{ github.sha }}"
+          echo "Branch           : ${{ github.ref_name }}"
+          echo "Author           : ${{ github.actor }}"
+          echo "Message          : ${{ github.event.head_commit.message }}"
+          echo "Triggered by     : ${{ github.event_name }}"
+          echo "=================================="
+
+      - name: 🌩️ Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -18,3 +40,9 @@ jobs:
           projectName: kedai-raffa-pos
           directory: public
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+
+      - name: ✅ Deploy selesai
+        run: |
+          echo "Deploy berhasil!"
+          echo "Commit ${{ github.sha }} sudah live di Cloudflare Pages."
