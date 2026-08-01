@@ -12,10 +12,10 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { nama, kode_akses } = await req.json()
+    const { kode_akses, role } = await req.json()
 
-    if (!nama || !kode_akses) {
-      return new Response(JSON.stringify({ error: 'Nama dan kode akses wajib diisi' }), {
+    if (!kode_akses || !role) {
+      return new Response(JSON.stringify({ error: 'Kode akses dan role wajib diisi' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
@@ -26,29 +26,34 @@ Deno.serve(async (req) => {
       Deno.env.get('SERVICE_ROLE_KEY') ?? ''
     )
 
-    const { data: user, error } = await supabaseAdmin
+    const { data: users, error } = await supabaseAdmin
       .from('users')
       .select('id, nama, role, kode_akses')
-      .ilike('nama', nama)
-      .single()
+      .eq('role', role)
 
-    if (error || !user) {
-      return new Response(JSON.stringify({ error: 'Nama atau kode akses tidak valid' }), {
+    if (error || !users || !users.length) {
+      return new Response(JSON.stringify({ error: 'Kode akses tidak valid' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
 
-    const valid = await bcrypt.compare(kode_akses, user.kode_akses)
+    let matchedUser = null
+    for (const u of users) {
+      if (await bcrypt.compare(kode_akses, u.kode_akses)) {
+        matchedUser = u
+        break
+      }
+    }
 
-    if (!valid) {
-      return new Response(JSON.stringify({ error: 'Nama atau kode akses tidak valid' }), {
+    if (!matchedUser) {
+      return new Response(JSON.stringify({ error: 'Kode akses tidak valid' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
 
-    const { kode_akses: _, ...userSafe } = user
+    const { kode_akses: _, ...userSafe } = matchedUser
 
     return new Response(JSON.stringify({ 
       success: true, 
