@@ -199,7 +199,7 @@ Setelah dapat URL Cloudflare Pages, update file `twa-manifest.json`.
 2. Klik file → klik **ikon pensil** (✏️ Edit)
 3. Ganti SEMUA kemunculan:
    ```
-   YOUR-CLOUDFLARE-PAGES-URL.pages.dev
+   kedai-raffa-pos.pages.dev
    ```
    Menjadi URL asli Anda, contoh:
    ```
@@ -211,10 +211,10 @@ Setelah dapat URL Cloudflare Pages, update file `twa-manifest.json`.
 **Sebelum:**
 ```json
 {
-  "host": "YOUR-CLOUDFLARE-PAGES-URL.pages.dev",
-  "iconUrl": "https://YOUR-CLOUDFLARE-PAGES-URL.pages.dev/icons/icon-512x512.png",
-  "webManifestUrl": "https://YOUR-CLOUDFLARE-PAGES-URL.pages.dev/manifest.json",
-  "fullScopeUrl": "https://YOUR-CLOUDFLARE-PAGES-URL.pages.dev/"
+  "host": "kedai-raffa-pos.pages.dev",
+  "iconUrl": "https://kedai-raffa-pos.pages.dev/icons/icon-512x512.png",
+  "webManifestUrl": "https://kedai-raffa-pos.pages.dev/manifest.json",
+  "fullScopeUrl": "https://kedai-raffa-pos.pages.dev/"
 }
 ```
 

@@ -176,7 +176,7 @@ kedai-raffa-pos/
 ## STEP 5: Update `twa-manifest.json`
 
 1. Di GitHub repo → edit `twa-manifest.json`
-2. Ganti semua `YOUR-CLOUDFLARE-PAGES-URL.pages.dev` dengan URL asli Anda
+2. Ganti semua `kedai-raffa-pos.pages.dev` dengan URL asli Anda
 3. Commit changes → Deploy otomatis jalan
 
 ---

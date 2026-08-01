@@ -103,7 +103,7 @@ Ringkasnya:
 ### ✅ LANGKAH 5: Update Config
 
 1. Edit `js/config.js` di GitHub → ganti tidak perlu (sudah benar)
-2. Edit `twa-manifest.json` → ganti `YOUR-CLOUDFLARE-PAGES-URL` dengan URL asli Anda
+2. `twa-manifest.json` sudah diupdate → URL `kedai-raffa-pos.pages.dev` ✅
 3. Commit changes → Deploy otomatis jalan
 
 ### ✅ LANGKAH 6: Setup GitHub Secrets (untuk Deploy & APK)
