@@ -14,6 +14,9 @@ jobs:
     name: Deploy commit ${{ github.sha }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      deployments: write
 
     steps:
       - name: 📥 Checkout latest commit
@@ -32,17 +35,14 @@ jobs:
           echo "Triggered by     : ${{ github.event_name }}"
           echo "=================================="
 
-      - name: 🌩️ Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+      - name: 🌩️ Deploy to Cloudflare Pages (Wrangler)
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: kedai-raffa-pos
-          directory: public
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+          command: pages deploy public --project-name=kedai-raffa-pos --branch=main --commit-hash=${{ github.sha }} --commit-message="${{ github.event.head_commit.message }}"
 
       - name: ✅ Deploy selesai
         run: |
           echo "Deploy berhasil!"
-          echo "Commit ${{ github.sha }} sudah live di Cloudflare Pages."
+          echo "Commit ${{ github.sha }} sudah live di https://kedai-raffa-pos.pages.dev"
