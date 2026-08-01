@@ -838,6 +838,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const user = Store.getUser();
   if (user && user.id) {
     currentUser = user;
+    await supabase.rpc('set_user_context', { p_user_id: user.id });
     showApp(user);
   } else {
     document.getElementById('splash').classList.add('hidden');
@@ -860,15 +861,17 @@ async function appLogin() {
   const kode = document.getElementById('kode-akses').value.trim();
   if (!kode) { showToast('Kode akses wajib diisi', 'error'); return; }
   try {
-    const { data, error } = await supabase.from('users').select('*').eq('kode_akses', kode).single();
-    if (error || !data) { throw new Error('Kode akses tidak valid'); }
-    if (data.role !== loginRole) { throw new Error('Kode akses bukan untuk role ' + loginRole); }
-    currentUser = { id: data.id, nama: data.nama, role: data.role };
+    const { data, error } = await supabase.functions.invoke('login', {
+      body: { kode_akses: kode, role: loginRole }
+    });
+    if (error) throw error;
+    if (!data || !data.success) { throw new Error(data?.error || 'Kode akses tidak valid'); }
+    currentUser = { id: data.user.id, nama: data.user.nama, role: data.user.role };
     Store.setUser(currentUser);
     // WAJIB: Set RLS context ke database
-    await supabase.rpc('set_user_context', { user_id: data.id });
+    await supabase.rpc('set_user_context', { p_user_id: data.user.id });
     showApp(currentUser);
-    showToast('Selamat datang, ' + data.nama, 'success');
+    showToast('Selamat datang, ' + data.user.nama, 'success');
   } catch (e) {
     const err = document.getElementById('login-error');
     err.textContent = e.message || 'Kode akses tidak valid';
@@ -881,7 +884,7 @@ async function showApp(user) {
   document.getElementById('login-screen').classList.add('hidden');
   document.getElementById('app-shell').classList.add('active');
   // Re-set RLS context saat resume session
-  await supabase.rpc('set_user_context', { user_id: user.id });
+  await supabase.rpc('set_user_context', { p_user_id: user.id });
   const nav = document.getElementById('bottom-nav');
   const items = nav.querySelectorAll('.nav-item');
   if (user.role === 'owner') {
