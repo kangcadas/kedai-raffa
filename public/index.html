@@ -861,17 +861,19 @@ async function appLogin() {
   const kode = document.getElementById('kode-akses').value.trim();
   if (!kode) { showToast('Kode akses wajib diisi', 'error'); return; }
   try {
-    const { data, error } = await supabase.functions.invoke('login', {
-      body: { kode_akses: kode, role: loginRole }
+    const { data, error } = await supabase.rpc('login_by_code', {
+      p_code: kode,
+      p_role: loginRole
     });
     if (error) throw error;
-    if (!data || !data.success) { throw new Error(data?.error || 'Kode akses tidak valid'); }
-    currentUser = { id: data.user.id, nama: data.user.nama, role: data.user.role };
+    if (!data || data.length === 0) { throw new Error('Kode akses tidak valid'); }
+    const user = data[0];
+    currentUser = { id: user.id, nama: user.nama, role: user.role };
     Store.setUser(currentUser);
     // WAJIB: Set RLS context ke database
-    await supabase.rpc('set_user_context', { user_id: data.user.id });
+    await supabase.rpc('set_user_context', { user_id: user.id });
     showApp(currentUser);
-    showToast('Selamat datang, ' + data.user.nama, 'success');
+    showToast('Selamat datang, ' + user.nama, 'success');
   } catch (e) {
     const err = document.getElementById('login-error');
     err.textContent = e.message || 'Kode akses tidak valid';
